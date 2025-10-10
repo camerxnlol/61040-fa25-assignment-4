@@ -1,4 +1,4 @@
-[@implementation](implementation.md)
+[@implementation](../LikertSurvey/implementation.md)
 
 [@testing-concepts](../../background/testing-concepts.md)
 
