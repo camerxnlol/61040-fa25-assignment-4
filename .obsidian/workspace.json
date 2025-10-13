@@ -13,12 +13,26 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "design/concepts/SongRecommender/testing.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "testing"
+              "title": "README"
+            }
+          },
+          {
+            "id": "1821565ccbe694b9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "README"
             }
           },
           {
@@ -35,7 +49,8 @@
               "title": "implementation"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -183,43 +198,43 @@
       "bases:Create new base": false
     }
   },
-  "active": "e6495e920e1c3ce7",
+  "active": "1821565ccbe694b9",
   "lastOpenFiles": [
-    "context/design/concepts/SongRecommender/testing.md/20251011_102953.17187c88.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/trace.277a0ed8.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/file.bcda41b1.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/file.b8cf2f8c.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/concept.5923c9f7.md",
-    "context/design/concepts/SongRecommender/testing.md/20251011_102845.03e1b234.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/trace.e9db0ffb.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/file.1aabccc1.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/test.a05b34aa.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/file.11edfed3.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/concept.7f5806fa.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/response.6d76b65d.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/implement.36ad48d6.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/_.2086d81d.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/_.db39d951.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/_.331f5a1f.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/_.04e090af.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/Generic Parameters.087161ea.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/approach.5df2171f.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/_.b0364a7a.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/_.3731a859.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/_.3eb68380.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/_.eb4d1820.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/approach.3e0d5a8f.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/_.ae61325b.md",
-    "context/design/concepts/SongRecommender/testing.md/20251010_170209.ba3d7735.md",
-    "context/design/concepts/SongRecommender/testing.md/steps",
-    "src/concepts/SongRecommender/SongRecommender.ts",
-    "src/concepts/SongRecommender",
-    "context/design/concepts/SongRecommender/implementation.md/steps",
-    "context/design/concepts/SongRecommender/concept-improvement.md/steps",
-    "context/design/concepts/SongRecommender",
-    "design/concepts/SongRecommender",
-    "node_modules/@google",
-    "node_modules/@types",
-    "package-lock.json"
+    "summary.md",
+    "README.md",
+    "src/concepts/SongRecommender/spec.md",
+    "design/concepts/SongRecommender/implementation.md",
+    "design/concepts/SongRecommender/concept-improvement.md",
+    "design/concepts/SongRecommender/testing.md",
+    "src/concepts/SongRecommender/test_output.md",
+    "src/concepts/SongRecommender/design_changes.md",
+    "src/design_changes.md",
+    "context/design/concepts/SongRecommender/testing.md/20251013_133008.21b62e17.md",
+    "context/design/concepts/SongRecommender/testing.md/steps/response.2ed11ae4.md",
+    "context/design/concepts/SongRecommender/testing.md/20251013_132923.f8343847.md",
+    "context/design/concepts/SongRecommender/testing.md/steps/prompt.48f55c6f.md",
+    "context/design/concepts/SongRecommender/testing.md/steps/trace.5b6e2653.md",
+    "context/design/concepts/SongRecommender/testing.md/steps/file.7b4c2a93.md",
+    "context/deno.json/20251013_132923.7b4c2a93.md",
+    "node_modules/bson/lib 2",
+    "node_modules/bson/LICENSE 2.md",
+    "node_modules/bson/README 2.md",
+    "node_modules/bson/package 2.json",
+    "node_modules/mongodb/mongodb.d.ts",
+    "node_modules/mongodb/lib/beta.d.ts",
+    "node_modules/mongodb/src/cmap/wire_protocol/on_demand/document.ts",
+    "node_modules/mongodb/src/cmap/auth/mongodb_oidc/command_builders.ts",
+    "node_modules/mongodb/src/cmap/auth/mongodb_oidc/token_machine_workflow.ts",
+    "node_modules/mongodb/src/cmap/auth/mongodb_oidc/token_cache.ts",
+    "node_modules/mongodb/src/cmap/auth/mongodb_oidc/k8s_machine_workflow.ts",
+    "node_modules/mongodb/src/cmap/auth/mongodb_oidc/human_callback_workflow.ts",
+    "node_modules/mongodb/LICENSE.md",
+    "node_modules/@mongodb-js/saslprep/readme.md",
+    "node_modules/webidl-conversions/README.md",
+    "node_modules/webidl-conversions/LICENSE.md",
+    "node_modules/tr46/LICENSE.md",
+    "node_modules/tr46/README.md",
+    "node_modules/whatwg-url/README.md",
+    "node_modules/bson/vendor/text-encoding/README.md"
   ]
 }

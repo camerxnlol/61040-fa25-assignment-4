@@ -4,561 +4,1368 @@
 
 [@example-testing](../LikertSurvey/testing.md)
 
-# file: src/SongRecommender/SongRecommenderConcept.test.ts
 
-# trace:
+```ts
+import { assert, assertEquals, assertExists, assertFalse } from "@std/assert";
 
-# response:
-
-# concept: SongRecommender
-
-*   **concept**: SongRecommender \[User, Song]
-*   **purpose**: To introduce a new song for the user each day.
-*   **principle**: Each day, the system presents a new song to the user, chosen from a list of songs. The user can listen to the song. Recommendations refresh daily and past recommendations can be revisited.
-*   **state**:
-    *   A set of `Users` with
-        *   a `set of pastRecommendations` of type `Songs`
-        *   a `set of notYetRecommendedSongs` of type `Songs`
-*   **invariant**: The intersection of `pastRecommendations` and `notYetRecommendedSongs` is empty.
-*   **actions**:
-    *   `addSongToCatalog(user: User, song: Song)`
-        *   **requires**: `song` is not in `pastRecommendations` or `notYetRecommendedSongs` for user.
-        *   **effects**: Adds `song` to `notYetRecommendedSongs` for user.
-    *   `generateRecommendation(user: User, count: Number): (songs: Song[])`
-        *   **requires**: `count` is less than or equal to the number of songs in `notYetRecommendedSongs` for user.
-        *   **effects**: Returns `count` song recommendations, moves song(s) from `notYetRecommendedSongs` to `pastRecommendations` for user.
-    *   `removeSong(user: User, song: Song)`
-        *   **requires**: `song` to be in `notYetRecommendedSongs` for user.
-        *   **effects**: Removes `song` from `notYetRecommendedSongs` for user.
-    *   `async generateRecommendationFromLLM(user: User, llm: GeminiLLM, count: Number, basisSongs: Song[]?)`
-        *   **effects**: Uses an LLM to generate `count` new songs and adds them to `notYetRecommendedSongs`. If `basisSongs` is provided, the new songs are based on the provided songs. If `basisSongs` is not provided, the new songs are based on current "trending" music that is different from the user's taste.
-
-# file: src/SongRecommender/SongRecommenderConcept.ts
-
-```typescript
-import { Collection, Db } from "npm:mongodb";
-import { Empty, ID } from "@utils/types.ts";
-import { freshID } from "@utils/database.ts";
-
-// Collection prefix to ensure namespace separation
-const PREFIX = "SongRecommender" + ".";
-
-// Generic types for the concept's external dependencies
-type User = ID;
-type Song = ID;
-
-// Dummy type for LLM, as it's not provided by the context and is an external dependency.
-// In a real scenario, this would be an interface for an actual LLM client.
-type GeminiLLM = string;
-
-/**
- * State: A set of Users with their past and not-yet-recommended songs.
- * Each document corresponds to a single user's song recommendation data.
- */
-interface UserSongCatalogDoc {
-  /** The unique identifier for the user, serving as the document's primary key. */
-  _id: User;
-  /** An array of song IDs that have already been recommended to the user. */
-  pastRecommendations: Song[];
-  /** An array of song IDs that are available but not yet recommended to the user. */
-  notYetRecommendedSongs: Song[];
-}
-
-/**
- * @concept SongRecommender
- * @purpose To introduce a new song for the user each day.
- */
-export default class SongRecommenderConcept {
-  userSongCatalogs: Collection<UserSongCatalogDoc>;
-
-  constructor(private readonly db: Db) {
-    this.userSongCatalogs = this.db.collection(PREFIX + "userSongCatalogs");
-  }
-
-  /**
-   * Action: Adds a song to a user's catalog of not-yet-recommended songs.
-   * @requires song is not in pastRecommendations or notYetRecommendedSongs for user.
-   * @effects adds song to notYetRecommendedSongs for user.
-   */
-  async addSongToCatalog(
-    { user: userId, song: songId }: { user: User; song: Song },
-  ): Promise<Empty | { error: string }> {
-    const userCatalog = await this.userSongCatalogs.findOne(
-      { _id: userId },
-      { projection: { pastRecommendations: 1, notYetRecommendedSongs: 1 } },
-    );
-
-    if (userCatalog) {
-      if (userCatalog.pastRecommendations?.includes(songId)) {
-        return { error: `Song '${songId}' has already been recommended to user '${userId}'.` };
-      }
-      if (userCatalog.notYetRecommendedSongs?.includes(songId)) {
-        return { error: `Song '${songId}' is already pending recommendation for user '${userId}'.` };
-      }
-    }
-
-    const result = await this.userSongCatalogs.updateOne(
-      { _id: userId },
-      {
-        $addToSet: { notYetRecommendedSongs: songId },
-        $setOnInsert: { pastRecommendations: [] }, // Initialize for new users
-      },
-      { upsert: true },
-    );
-
-    if (result.matchedCount === 0 && !result.upsertedId) {
-      return { error: `Failed to add song '${songId}' for user '${userId}'.` };
-    }
-    return {};
-  }
-
-  /**
-   * Action: Generates a specified number of song recommendations for a user.
-   * @requires count is less than or equal to the number of songs in notYetRecommendedSongs for user.
-   * @effects returns count song recommendations, moves song(s) from notYetRecommendedSongs to pastRecommendations for user.
-   */
-  async generateRecommendation(
-    { user: userId, count }: { user: User; count: number },
-  ): Promise<{ songs: Song[] } | { error: string }> {
-    if (count <= 0) {
-      return { error: "Count must be a positive number." };
-    }
-
-    const userCatalog = await this.userSongCatalogs.findOne(
-      { _id: userId },
-      { projection: { notYetRecommendedSongs: 1, pastRecommendations: 1 } },
-    );
-
-    if (!userCatalog || !userCatalog.notYetRecommendedSongs || userCatalog.notYetRecommendedSongs.length === 0) {
-      return { error: `No songs available for recommendation for user '${userId}'.` };
-    }
-
-    if (userCatalog.notYetRecommendedSongs.length < count) {
-      return { error: `Not enough songs available for recommendation. Requested ${count}, but only ${userCatalog.notYetRecommendedSongs.length} available.` };
-    }
-
-    // Select `count` songs from `notYetRecommendedSongs`.
-    // For simplicity, we take them from the beginning of the array.
-    const recommendedSongs = userCatalog.notYetRecommendedSongs.slice(0, count);
-
-    // Update the user's catalog:
-    // 1. Remove recommended songs from `notYetRecommendedSongs`.
-    // 2. Add recommended songs to `pastRecommendations`.
-    const result = await this.userSongCatalogs.updateOne(
-      { _id: userId },
-      {
-        $pullAll: { notYetRecommendedSongs: recommendedSongs },
-        $addToSet: { pastRecommendations: { $each: recommendedSongs } },
-      },
-    );
-
-    if (result.modifiedCount === 0) {
-      // This case might happen if, for example, the document was modified externally
-      // between findOne and updateOne, though less likely with optimistic concurrency
-      // it's good to guard.
-      return { error: `Failed to update catalog for user '${userId}' during recommendation.` };
-    }
-
-    return { songs: recommendedSongs };
-  }
-
-  /**
-   * Action: Removes a song from a user's not-yet-recommended songs.
-   * @requires song to be in notYetRecommendedSongs for user.
-   * @effects removes song from notYetRecommendedSongs for user.
-   */
-  async removeSong(
-    { user: userId, song: songId }: { user: User; song: Song },
-  ): Promise<Empty | { error: string }> {
-    const userCatalog = await this.userSongCatalogs.findOne(
-      { _id: userId },
-      { projection: { notYetRecommendedSongs: 1 } },
-    );
-
-    if (!userCatalog || !userCatalog.notYetRecommendedSongs?.includes(songId)) {
-      return { error: `Song '${songId}' is not in notYetRecommendedSongs for user '${userId}'.` };
-    }
-
-    const result = await this.userSongCatalogs.updateOne(
-      { _id: userId },
-      {
-        $pull: { notYetRecommendedSongs: songId },
-      },
-    );
-
-    if (result.modifiedCount === 0) {
-      return { error: `Failed to remove song '${songId}' for user '${userId}'.` };
-    }
-    return {};
-  }
-
-  /**
-   * Async Action: Uses an LLM to generate new songs and adds them to notYetRecommendedSongs.
-   * Note: The actual LLM integration is beyond the scope of this implementation.
-   * This stub generates dummy song IDs.
-   * @effects Uses an LLM to generate count new songs and adds them to notYetRecommendedSongs.
-   * If basisSongs is provided, the new songs are based on the provided songs.
-   * If basisSongs is not provided, the new songs are based on current "trending" music that is different from the user's taste.
-   */
-  async generateRecommendationFromLLM(
-    { user: userId, llm: _llm, count, basisSongs: _basisSongs }: {
-      user: User;
-      llm: GeminiLLM; // Mocked type, actual LLM client would be passed here
-      count: number;
-      basisSongs?: Song[]; // Ignored for this stub implementation
-    },
-  ): Promise<Empty | { error: string }> {
-    if (count <= 0) {
-      return { error: "Count must be a positive number." };
-    }
-
-    // Simulate LLM generating new song IDs
-    const newSongIds: Song[] = [];
-    for (let i = 0; i < count; i++) {
-      newSongIds.push(freshID() as Song);
-    }
-
-    const result = await this.userSongCatalogs.updateOne(
-      { _id: userId },
-      {
-        $addToSet: { notYetRecommendedSongs: { $each: newSongIds } },
-        $setOnInsert: { pastRecommendations: [] }, // Initialize for new users
-      },
-      { upsert: true },
-    );
-
-    if (result.matchedCount === 0 && !result.upsertedId) {
-      return { error: `Failed to generate and add songs for user '${userId}'.` };
-    }
-    return {};
-  }
-
-  /**
-   * Query: Retrieves a user's entire song catalog (past and not-yet-recommended songs).
-   */
-  async _getUserCatalog(userId: User): Promise<UserSongCatalogDoc | null> {
-    return await this.userSongCatalogs.findOne({ _id: userId });
-  }
-}
-```
-
-# file: src/SongRecommender/SongRecommenderConcept.test.ts
-
-```typescript
-import { assertEquals, assertExists, assertNotEquals, assertArrayIncludes } from "jsr:@std/assert";
 import { testDb } from "@utils/database.ts";
+
 import { ID } from "@utils/types.ts";
-import SongRecommenderConcept from "./SongRecommenderConcept.ts";
+
+import {
+
+_getUserCatalog, // Query function added for testing
+
+addSongToCatalog,
+
+generateRecommendation,
+
+removeSong,
+
+} from "./SongRecommenderConcept.ts";
+
+  
+
+function expectExists<T>(
+
+value: T | null | undefined,
+
+message?: string,
+
+): asserts value is T {
+
+assertExists(value, message);
+
+}
+
+  
+
+// Define test users and songs
 
 const userA = "user:Alice" as ID;
+
 const userB = "user:Bob" as ID;
 
-const song1 = "song:Wonderwall" as ID;
-const song2 = "song:BohemianRhapsody" as ID;
-const song3 = "song:StairwayToHeaven" as ID;
-const song4 = "song:HotelCalifornia" as ID;
-const song5 = "song:SweetChildOMine" as ID;
+const song1 = "song:BohemianRhapsody" as ID;
 
-Deno.test("Principle: System presents new songs, user can revisit past, recommendations refresh daily", async () => {
+const song2 = "song:StairwayToHeaven" as ID;
+
+const song3 = "song:HotelCalifornia" as ID;
+
+const song4 = "song:Imagine" as ID;
+
+  
+
+Deno.test("Principle: User gets daily song recommendations, past recommendations are tracked", async () => {
+
+const [db, client] = await testDb();
+
+  
+
+try {
+
+console.log("\n--- Principle Test: Daily Song Recommendations ---");
+
+  
+
+// 1. Add several songs to userA's catalog
+
+console.log(`Action: Adding songs for user ${userA}`);
+
+await addSongToCatalog(db, userA, song1);
+
+await addSongToCatalog(db, userA, song2);
+
+await addSongToCatalog(db, userA, song3);
+
+await addSongToCatalog(db, userA, song4);
+
+  
+
+let userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+
+expectExists(userCatalog);
+
+assertEquals(
+
+userCatalog.notYetRecommendedSongs.length,
+
+4,
+
+"Initially, 4 songs should be not-yet-recommended.",
+
+);
+
+assertEquals(
+
+userCatalog.pastRecommendations.length,
+
+0,
+
+"Initially, no songs should be past recommendations.",
+
+);
+
+console.log(
+
+`State: ${userA} has ${userCatalog.notYetRecommendedSongs.length} not-yet-recommended songs.`,
+
+);
+
+  
+
+// 2. Generate the first recommendation for userA (e.g., for the first day)
+
+console.log(`Action: Generating 1 recommendation for user ${userA}`);
+
+const recommendedSongs1 = await generateRecommendation(db, userA, 1);
+
+assertEquals(
+
+recommendedSongs1.length,
+
+1,
+
+"Should receive 1 song recommendation.",
+
+);
+
+assertEquals(
+
+recommendedSongs1[0],
+
+song1,
+
+"First recommended song should be song1.",
+
+);
+
+  
+
+userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+
+expectExists(userCatalog);
+
+assertEquals(
+
+userCatalog.notYetRecommendedSongs.length,
+
+3,
+
+"After 1 recommendation, 3 songs should remain.",
+
+);
+
+assertEquals(
+
+userCatalog.pastRecommendations.length,
+
+1,
+
+"After 1 recommendation, 1 song should be in past recommendations.",
+
+);
+
+assertEquals(
+
+userCatalog.pastRecommendations[0],
+
+song1,
+
+"Song1 should now be in past recommendations.",
+
+);
+
+console.log(
+
+`State: ${userA} received ${
+
+recommendedSongs1[0]
+
+}. Not-yet-recommended: ${userCatalog.notYetRecommendedSongs.length}, Past: ${userCatalog.pastRecommendations.length}`,
+
+);
+
+  
+
+// 3. Generate another recommendation for userA (e.g., for the second day)
+
+console.log(
+
+`Action: Generating another 1 recommendation for user ${userA}`,
+
+);
+
+const recommendedSongs2 = await generateRecommendation(db, userA, 1);
+
+assertEquals(
+
+recommendedSongs2.length,
+
+1,
+
+"Should receive another 1 song recommendation.",
+
+);
+
+assertEquals(
+
+recommendedSongs2[0],
+
+song2,
+
+"Second recommended song should be song2.",
+
+);
+
+  
+
+userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+
+expectExists(userCatalog);
+
+assertEquals(
+
+userCatalog.notYetRecommendedSongs.length,
+
+2,
+
+"After 2 recommendations, 2 songs should remain.",
+
+);
+
+assertEquals(
+
+userCatalog.pastRecommendations.length,
+
+2,
+
+"After 2 recommendations, 2 songs should be in past recommendations.",
+
+);
+
+assert(
+
+userCatalog.pastRecommendations.includes(song1) &&
+
+userCatalog.pastRecommendations.includes(song2),
+
+"Song1 and Song2 should be in past recommendations.",
+
+);
+
+console.log(
+
+`State: ${userA} received ${
+
+recommendedSongs2[0]
+
+}. Not-yet-recommended: ${userCatalog.notYetRecommendedSongs.length}, Past: ${userCatalog.pastRecommendations.length}`,
+
+);
+
+  
+
+// 4. Verify past recommendations can be revisited (implicitly, they are in the 'pastRecommendations' array)
+
+console.log(
+
+`Verification: Past recommendations array: ${userCatalog.pastRecommendations}`,
+
+);
+
+assert(
+
+userCatalog.pastRecommendations.includes(song1),
+
+"Song1 should be visible in past recommendations.",
+
+);
+
+assert(
+
+userCatalog.pastRecommendations.includes(song2),
+
+"Song2 should be visible in past recommendations.",
+
+);
+
+  
+
+console.log("Principle Test Completed Successfully.");
+
+} finally {
+
+await client.close();
+
+}
+
+});
+
+  
+
+Deno.test("Action: addSongToCatalog - Valid addition", async () => {
+
+const [db, client] = await testDb();
+
+try {
+
+console.log("\n--- addSongToCatalog: Valid addition ---");
+
+await addSongToCatalog(db, userA, song1);
+
+const userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+
+expectExists(userCatalog, "User catalog should exist after adding a song.");
+
+assertEquals(
+
+userCatalog.notYetRecommendedSongs.includes(song1),
+
+true,
+
+"Song1 should be in notYetRecommendedSongs.",
+
+);
+
+assertEquals(
+
+userCatalog.pastRecommendations.length,
+
+0,
+
+"Past recommendations should be empty for a new user.",
+
+);
+
+console.log(
+
+`Effect: Song ${song1} added to ${userA}'s notYetRecommendedSongs.`,
+
+);
+
+} finally {
+
+await client.close();
+
+}
+
+});
+
+  
+
+Deno.test("Action: addSongToCatalog - Requires: song not already in catalog", async () => {
+
+const [db, client] = await testDb();
+
+try {
+
+console.log("\n--- addSongToCatalog: Duplicate song handling ---");
+
+await addSongToCatalog(db, userA, song1);
+
+console.log(`Effect: Song ${song1} added initially.`);
+
+  
+
+let error: string | undefined;
+
+try {
+
+await addSongToCatalog(db, userA, song1); // Attempt to add duplicate
+
+} catch (e: unknown) {
+
+error = e instanceof Error ? e.message : String(e);
+
+}
+
+assertExists(error, "Adding a duplicate song should throw an error.");
+
+assertEquals(
+
+error,
+
+`Song '${song1}' is already pending recommendation for user '${userA}'.`,
+
+);
+
+console.log(`Requirement Check: Failed to add duplicate song: ${error}`);
+
+  
+
+// Simulate a song moving to pastRecommendations
+
+await addSongToCatalog(db, userA, song2);
+
+await generateRecommendation(db, userA, 2); // Move song1 and song2 to past
+
+  
+
+error = undefined;
+
+try {
+
+await addSongToCatalog(db, userA, song1); // Attempt to add a song already in past
+
+} catch (e: unknown) {
+
+error = e instanceof Error ? e.message : String(e);
+
+}
+
+assertExists(
+
+error,
+
+"Adding a song already in pastRecommendations should throw an error.",
+
+);
+
+assertEquals(
+
+error,
+
+`Song '${song1}' has already been recommended to user '${userA}'.`,
+
+);
+
+console.log(
+
+`Requirement Check: Failed to add song already in past recommendations: ${error}`,
+
+);
+
+} finally {
+
+await client.close();
+
+}
+
+});
+
+  
+
+Deno.test("Action: generateRecommendation - Valid generation", async () => {
+
+const [db, client] = await testDb();
+
+try {
+
+console.log("\n--- generateRecommendation: Valid generation ---");
+
+await addSongToCatalog(db, userB, song1);
+
+await addSongToCatalog(db, userB, song2);
+
+await addSongToCatalog(db, userB, song3);
+
+console.log(
+
+`Setup: Added ${song1}, ${song2}, ${song3} to ${userB}'s catalog.`,
+
+);
+
+  
+
+const recommendedSongs = await generateRecommendation(db, userB, 2);
+
+assertEquals(
+
+recommendedSongs.length,
+
+2,
+
+"Should return 2 recommended songs.",
+
+);
+
+assertEquals(
+
+recommendedSongs.includes(song1),
+
+true,
+
+"Should include song1.",
+
+);
+
+assertEquals(
+
+recommendedSongs.includes(song2),
+
+true,
+
+"Should include song2.",
+
+);
+
+assertFalse(recommendedSongs.includes(song3), "Should not include song3.");
+
+console.log(`Effect: Recommended songs: ${recommendedSongs.join(", ")}`);
+
+  
+
+const userCatalog = await _getUserCatalog(db).findOne({ _id: userB });
+
+expectExists(userCatalog);
+
+assertEquals(
+
+userCatalog.notYetRecommendedSongs.length,
+
+1,
+
+"notYetRecommendedSongs should have 1 song left.",
+
+);
+
+assertEquals(
+
+userCatalog.notYetRecommendedSongs[0],
+
+song3,
+
+"song3 should be remaining.",
+
+);
+
+assertEquals(
+
+userCatalog.pastRecommendations.length,
+
+2,
+
+"pastRecommendations should have 2 songs.",
+
+);
+
+assert(
+
+userCatalog.pastRecommendations.includes(song1),
+
+"pastRecommendations should include song1.",
+
+);
+
+assert(
+
+userCatalog.pastRecommendations.includes(song2),
+
+"pastRecommendations should include song2.",
+
+);
+
+console.log(
+
+`Effect: State updated. Not-yet-recommended: ${userCatalog.notYetRecommendedSongs}, Past: ${userCatalog.pastRecommendations}`,
+
+);
+
+} finally {
+
+await client.close();
+
+}
+
+});
+
+  
+
+Deno.test("Action: generateRecommendation - Requires: count less than or equal to available songs", async () => {
+
+const [db, client] = await testDb();
+
+try {
+
+console.log("\n--- generateRecommendation: Invalid count handling ---");
+
+await addSongToCatalog(db, userA, song1);
+
+await addSongToCatalog(db, userA, song2);
+
+console.log(`Setup: Added ${song1}, ${song2} to ${userA}'s catalog.`);
+
+  
+
+let error: string | undefined;
+
+  
+
+try {
+
+await generateRecommendation(db, userA, 3); // Request more than available
+
+} catch (e: unknown) {
+
+error = e instanceof Error ? e.message : String(e);
+
+}
+
+assertExists(
+
+error,
+
+"Generating more songs than available should throw an error.",
+
+);
+
+assertEquals(
+
+error,
+
+`Not enough songs available for user '${userA}'. Requested 3, but only 2 are available.`,
+
+);
+
+console.log(
+
+`Requirement Check: Failed to generate too many songs: ${error}`,
+
+);
+
+  
+
+error = undefined;
+
+try {
+
+await generateRecommendation(db, userA, 0); // Request zero songs
+
+} catch (e: unknown) {
+
+error = e instanceof Error ? e.message : String(e);
+
+}
+
+assertExists(error, "Generating zero songs should throw an error.");
+
+assertEquals(error, "Count for recommendations must be a positive number.");
+
+console.log(`Requirement Check: Failed to generate zero songs: ${error}`);
+
+  
+
+error = undefined;
+
+try {
+
+await generateRecommendation(db, userA, -1); // Request negative songs
+
+} catch (e: unknown) {
+
+error = e instanceof Error ? e.message : String(e);
+
+}
+
+assertExists(error, "Generating negative songs should throw an error.");
+
+assertEquals(error, "Count for recommendations must be a positive number.");
+
+console.log(
+
+`Requirement Check: Failed to generate negative songs: ${error}`,
+
+);
+
+  
+
+// Test for a user that does not exist or has no songs
+
+error = undefined;
+
+try {
+
+await generateRecommendation(db, "nonexistentUser" as ID, 1);
+
+} catch (e: unknown) {
+
+error = e instanceof Error ? e.message : String(e);
+
+}
+
+assertExists(
+
+error,
+
+"Generating for a nonexistent user should throw an error.",
+
+);
+
+assertEquals(
+
+error,
+
+`User 'nonexistentUser' not found or has no songs available for recommendation.`,
+
+);
+
+console.log(`Requirement Check: Failed for nonexistent user: ${error}`);
+
+} finally {
+
+await client.close();
+
+}
+
+});
+
+  
+
+Deno.test("Action: removeSong - Valid removal", async () => {
+
+const [db, client] = await testDb();
+
+try {
+
+console.log("\n--- removeSong: Valid removal ---");
+
+await addSongToCatalog(db, userA, song1);
+
+await addSongToCatalog(db, userA, song2);
+
+console.log(`Setup: Added ${song1}, ${song2} to ${userA}'s catalog.`);
+
+  
+
+await removeSong(db, userA, song1);
+
+console.log(
+
+`Effect: Removed ${song1} from ${userA}'s notYetRecommendedSongs.`,
+
+);
+
+  
+
+const userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+
+expectExists(userCatalog);
+
+assertEquals(
+
+userCatalog.notYetRecommendedSongs.length,
+
+1,
+
+"notYetRecommendedSongs should have 1 song left.",
+
+);
+
+assertEquals(
+
+userCatalog.notYetRecommendedSongs[0],
+
+song2,
+
+"Song2 should be the remaining song.",
+
+);
+
+assertFalse(
+
+userCatalog.notYetRecommendedSongs.includes(song1),
+
+"Song1 should no longer be in notYetRecommendedSongs.",
+
+);
+
+} finally {
+
+await client.close();
+
+}
+
+});
+
+  
+
+Deno.test("Action: removeSong - Requires: song to be in notYetRecommendedSongs", async () => {
+
+const [db, client] = await testDb();
+
+try {
+
+console.log("\n--- removeSong: Invalid removal handling ---");
+
+await addSongToCatalog(db, userA, song1);
+
+await addSongToCatalog(db, userA, song2);
+
+// Move song1 to pastRecommendations to test that scenario
+
+await generateRecommendation(db, userA, 1);
+
+console.log(
+
+`Setup: ${song1} is in pastRecommendations, ${song2} is in notYetRecommendedSongs.`,
+
+);
+
+  
+
+let error: string | undefined;
+
+try {
+
+await removeSong(db, userA, song1); // Attempt to remove a song from pastRecommendations
+
+} catch (e: unknown) {
+
+error = e instanceof Error ? e.message : String(e);
+
+}
+
+assertExists(
+
+error,
+
+"Removing a song from pastRecommendations should throw an error.",
+
+);
+
+assertEquals(
+
+error,
+
+`Song '${song1}' not found in not-yet-recommended songs for user '${userA}'.`,
+
+);
+
+console.log(
+
+`Requirement Check: Failed to remove song in past recommendations: ${error}`,
+
+);
+
+  
+
+error = undefined;
+
+try {
+
+await removeSong(db, userA, song3); // Attempt to remove a nonexistent song
+
+} catch (e: unknown) {
+
+error = e instanceof Error ? e.message : String(e);
+
+}
+
+assertExists(error, "Removing a nonexistent song should throw an error.");
+
+assertEquals(
+
+error,
+
+`Song '${song3}' not found in not-yet-recommended songs for user '${userA}'.`,
+
+);
+
+console.log(
+
+`Requirement Check: Failed to remove nonexistent song: ${error}`,
+
+);
+
+  
+
+error = undefined;
+
+try {
+
+await removeSong(db, "nonexistentUser" as ID, song1); // Attempt to remove for nonexistent user
+
+} catch (e: unknown) {
+
+error = e instanceof Error ? e.message : String(e);
+
+}
+
+assertExists(
+
+error,
+
+"Removing for a nonexistent user should throw an error.",
+
+);
+
+assertEquals(
+
+error,
+
+`Song '${song1}' not found in not-yet-recommended songs for user 'nonexistentUser'.`,
+
+);
+
+console.log(`Requirement Check: Failed for nonexistent user: ${error}`);
+
+} finally {
+
+await client.close();
+
+}
+
+});
+```
+# prompt: See above for the tests that I've cleaned up. I want you to write more descriptive messages for the tests and use the green check emoji for when things behave as expected, and use the red X emoji for when things don't behave as expected. Do not change the content of the tests if possible, only the logging
+# response:
+
+Okay, I will update the provided test file to include more descriptive logging messages, using the green check `✅` for expected successes and red cross `❌` for expected failures or errors, without altering the core test logic or assertions.
+
+```typescript
+import { assertEquals, assertExists, assertFalse, assert } from "jsr:@std/assert";
+import { testDb } from "@utils/database.ts";
+import { ID } from "@utils/types.ts";
+
+import {
+  _getUserCatalog, // Query function added for testing
+  addSongToCatalog,
+  generateRecommendation,
+  removeSong,
+} from "./SongRecommenderConcept.ts"; // Assuming these functions are exported
+
+function expectExists<T>(
+  value: T | null | undefined,
+  message?: string,
+): asserts value is T {
+  assertExists(value, message);
+}
+
+// Define test users and songs
+const userA = "user:Alice" as ID;
+const userB = "user:Bob" as ID;
+const song1 = "song:BohemianRhapsody" as ID;
+const song2 = "song:StairwayToHeaven" as ID;
+const song3 = "song:HotelCalifornia" as ID;
+const song4 = "song:Imagine" as ID;
+
+Deno.test("Principle: User gets daily song recommendations, past recommendations are tracked", async () => {
   const [db, client] = await testDb();
-  const recommender = new SongRecommenderConcept(db);
 
   try {
-    // 1. User adds initial songs to their catalog
-    await recommender.addSongToCatalog({ user: userA, song: song1 });
-    await recommender.addSongToCatalog({ user: userA, song: song2 });
-    await recommender.addSongToCatalog({ user: userA, song: song3 });
+    console.log("\n--- Principle Test: Daily Song Recommendations ---");
+    console.log("Scenario: An author adds songs, a user receives recommendations daily, and past recommendations are tracked.");
 
-    let userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs.length, 3);
-    assertEquals(userCatalog.pastRecommendations.length, 0);
+    // 1. Add several songs to userA's catalog
+    console.log(`\nStep 1: Adding initial songs to ${userA}'s catalog.`);
+    await addSongToCatalog(db, userA, song1);
+    await addSongToCatalog(db, userA, song2);
+    await addSongToCatalog(db, userA, song3);
+    await addSongToCatalog(db, userA, song4);
+    console.log(`  ✅ Added ${song1}, ${song2}, ${song3}, ${song4} to ${userA}'s not-yet-recommended songs.`);
 
-    // 2. Each day, the system presents a new song to the user, chosen from a list of songs.
-    // (Simulate 1st day recommendation)
-    const rec1Result = await recommender.generateRecommendation({ user: userA, count: 1 });
-    assertNotEquals("error" in rec1Result, true, "First recommendation should succeed.");
-    const { songs: recSongs1 } = rec1Result as { songs: ID[] };
-    assertEquals(recSongs1.length, 1);
-    assertArrayIncludes([song1, song2, song3], recSongs1); // It picks one of them
+    let userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+    expectExists(userCatalog, "User catalog should exist after adding songs.");
+    assertEquals(
+      userCatalog.notYetRecommendedSongs.length,
+      4,
+      "Initially, 4 songs should be not-yet-recommended.",
+    );
+    assertEquals(
+      userCatalog.pastRecommendations.length,
+      0,
+      "Initially, no songs should be past recommendations.",
+    );
+    console.log(`  ✅ Initial state: ${userA} has ${userCatalog.notYetRecommendedSongs.length} not-yet-recommended songs and ${userCatalog.pastRecommendations.length} past recommendations.`);
 
-    userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs.length, 2); // One song moved
-    assertEquals(userCatalog.pastRecommendations.length, 1); // One song added to past
-    assertArrayIncludes(userCatalog.pastRecommendations, recSongs1);
-    assertNotEquals(userCatalog.notYetRecommendedSongs.includes(recSongs1[0]), true, "Recommended song should no longer be in notYetRecommended.");
+    // 2. Generate the first recommendation for userA (e.g., for the first day)
+    console.log(`\nStep 2: Generating 1 recommendation for ${userA} (Day 1).`);
+    const recommendedSongs1 = await generateRecommendation(db, userA, 1);
+    assertEquals(
+      recommendedSongs1.length,
+      1,
+      "Should receive 1 song recommendation.",
+    );
+    assertEquals(
+      recommendedSongs1[0],
+      song1,
+      `First recommended song should be ${song1}.`,
+    );
+    console.log(`  ✅ ${userA} received recommendation: ${recommendedSongs1[0]}.`);
 
-    // (Simulate 2nd day recommendation)
-    const rec2Result = await recommender.generateRecommendation({ user: userA, count: 1 });
-    assertNotEquals("error" in rec2Result, true, "Second recommendation should succeed.");
-    const { songs: recSongs2 } = rec2Result as { songs: ID[] };
-    assertEquals(recSongs2.length, 1);
-    assertArrayIncludes([song1, song2, song3], recSongs2);
-    assertNotEquals(recSongs1[0], recSongs2[0], "Should recommend a different song."); // Assuming order of songs in notYetRecommendedSongs is stable for slice(0,1)
+    userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+    expectExists(userCatalog, "User catalog should still exist.");
+    assertEquals(
+      userCatalog.notYetRecommendedSongs.length,
+      3,
+      "After 1 recommendation, 3 songs should remain in not-yet-recommended.",
+    );
+    assertEquals(
+      userCatalog.pastRecommendations.length,
+      1,
+      "After 1 recommendation, 1 song should be in past recommendations.",
+    );
+    assertEquals(
+      userCatalog.pastRecommendations[0],
+      song1,
+      `${song1} should now be in past recommendations.`,
+    );
+    console.log(`  ✅ State updated: Not-yet-recommended: ${userCatalog.notYetRecommendedSongs.length}, Past: ${userCatalog.pastRecommendations.length}.`);
 
-    userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs.length, 1);
-    assertEquals(userCatalog.pastRecommendations.length, 2);
-    assertArrayIncludes(userCatalog.pastRecommendations, [...recSongs1, ...recSongs2]);
+    // 3. Generate another recommendation for userA (e.g., for the second day)
+    console.log(`\nStep 3: Generating another 1 recommendation for ${userA} (Day 2).`);
+    const recommendedSongs2 = await generateRecommendation(db, userA, 1);
+    assertEquals(
+      recommendedSongs2.length,
+      1,
+      "Should receive another 1 song recommendation.",
+    );
+    assertEquals(
+      recommendedSongs2[0],
+      song2,
+      `Second recommended song should be ${song2}.`,
+    );
+    console.log(`  ✅ ${userA} received recommendation: ${recommendedSongs2[0]}.`);
 
-    // 3. Past recommendations can be revisited.
-    // (Querying pastRecommendations directly shows they are available)
-    assertArrayIncludes(userCatalog.pastRecommendations, recSongs1, "Past recommendations should include previously recommended song.");
-    assertArrayIncludes(userCatalog.pastRecommendations, recSongs2, "Past recommendations should include second recommended song.");
+    userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+    expectExists(userCatalog, "User catalog should still exist.");
+    assertEquals(
+      userCatalog.notYetRecommendedSongs.length,
+      2,
+      "After 2 recommendations, 2 songs should remain in not-yet-recommended.",
+    );
+    assertEquals(
+      userCatalog.pastRecommendations.length,
+      2,
+      "After 2 recommendations, 2 songs should be in past recommendations.",
+    );
+    assert(
+      userCatalog.pastRecommendations.includes(song1) &&
+      userCatalog.pastRecommendations.includes(song2),
+      `${song1} and ${song2} should be in past recommendations.`,
+    );
+    console.log(`  ✅ State updated: Not-yet-recommended: ${userCatalog.notYetRecommendedSongs.length}, Past: ${userCatalog.pastRecommendations.length}.`);
 
-    // 4. User can remove a song not yet recommended
-    const removeResult = await recommender.removeSong({ user: userA, song: song3 });
-    assertEquals("error" in removeResult, false, "Removing a song should succeed.");
+    // 4. Verify past recommendations can be revisited (implicitly, they are in the 'pastRecommendations' array)
+    console.log(`\nStep 4: Verifying past recommendations can be viewed.`);
+    console.log(`  Current past recommendations: ${userCatalog.pastRecommendations.join(", ")}`);
+    assert(
+      userCatalog.pastRecommendations.includes(song1),
+      `${song1} should be visible in past recommendations.`,
+    );
+    assert(
+      userCatalog.pastRecommendations.includes(song2),
+      `${song2} should be visible in past recommendations.`
+    );
+    console.log(`  ✅ Confirmed: Both ${song1} and ${song2} are recorded in past recommendations.`);
 
-    userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs.length, 0); // song3 removed, only other one was recommended
-    assertEquals(userCatalog.pastRecommendations.length, 2);
-    assertEquals(userCatalog.notYetRecommendedSongs.includes(song3), false, "Song3 should be removed from notYetRecommended.");
+    console.log("\n--- Principle Test Completed Successfully ✅ ---");
   } finally {
     await client.close();
   }
 });
 
-Deno.test("Action: addSongToCatalog successfully adds a new song", async () => {
+Deno.test("Action: addSongToCatalog - Valid addition", async () => {
   const [db, client] = await testDb();
-  const recommender = new SongRecommenderConcept(db);
-
   try {
-    const result = await recommender.addSongToCatalog({ user: userA, song: song1 });
-    assertEquals("error" in result, false, "Adding a new song should succeed.");
+    console.log("\n--- Action Test: addSongToCatalog - Valid addition ---");
+    console.log(`Attempting to add ${song1} to ${userA}'s catalog.`);
+    await addSongToCatalog(db, userA, song1);
+    console.log(`  ✅ Action successful.`);
 
-    const userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs, [song1], "Song should be in notYetRecommendedSongs.");
-    assertEquals(userCatalog.pastRecommendations.length, 0, "pastRecommendations should be empty.");
+    const userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+    expectExists(userCatalog, "User catalog should exist after adding a song.");
+    assertEquals(
+      userCatalog.notYetRecommendedSongs.includes(song1),
+      true,
+      `${song1} should be in notYetRecommendedSongs.`,
+    );
+    assertEquals(
+      userCatalog.pastRecommendations.length,
+      0,
+      "Past recommendations should be empty for a new user.",
+    );
+    console.log(`  ✅ Effect confirmed: ${song1} added to ${userA}'s notYetRecommendedSongs. Past recommendations are empty.`);
   } finally {
     await client.close();
   }
 });
 
-Deno.test("Action: addSongToCatalog requires song to not be already present", async () => {
+Deno.test("Action: addSongToCatalog - Requires: song not already in catalog", async () => {
   const [db, client] = await testDb();
-  const recommender = new SongRecommenderConcept(db);
-
   try {
-    // Add song initially
-    await recommender.addSongToCatalog({ user: userA, song: song1 });
-    let userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs, [song1]);
+    console.log("\n--- Action Test: addSongToCatalog - Duplicate song handling ---");
+    await addSongToCatalog(db, userA, song1);
+    console.log(`  ✅ Setup: ${song1} added initially to ${userA}'s not-yet-recommended list.`);
 
-    // Try adding the same song again to notYetRecommendedSongs
-    const duplicateAddResult = await recommender.addSongToCatalog({ user: userA, song: song1 });
-    assertEquals("error" in duplicateAddResult, true, "Adding a song already in notYetRecommendedSongs should fail.");
-    assertEquals((duplicateAddResult as { error: string }).error, `Song '${song1}' is already pending recommendation for user '${userA}'.`);
+    let error: string | undefined;
+    console.log(`\nAttempting to add ${song1} again to ${userA}'s catalog (duplicate).`);
+    try {
+      await addSongToCatalog(db, userA, song1); // Attempt to add duplicate
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    assertExists(error, "Adding a duplicate song should throw an error.");
+    assertEquals(
+      error,
+      `Song '${song1}' is already pending recommendation for user '${userA}'.`,
+    );
+    console.log(`  ❌ Requirement check: Failed as expected. Error: ${error}`);
 
-    // Move song to pastRecommendations
-    await recommender.generateRecommendation({ user: userA, count: 1 });
-    userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs.length, 0);
-    assertEquals(userCatalog.pastRecommendations, [song1]);
+    // Simulate a song moving to pastRecommendations
+    await addSongToCatalog(db, userA, song2);
+    await generateRecommendation(db, userA, 2); // Move song1 and song2 to past
+    const userCatalogAfterMove = await _getUserCatalog(db).findOne({_id: userA});
+    expectExists(userCatalogAfterMove);
+    console.log(`  ✅ Setup: ${song1} and ${song2} moved to ${userA}'s pastRecommendations.`);
+    console.log(`  Current past recommendations: ${userCatalogAfterMove.pastRecommendations.join(", ")}`);
 
-    // Try adding the same song again when it's in pastRecommendations
-    const pastAddResult = await recommender.addSongToCatalog({ user: userA, song: song1 });
-    assertEquals("error" in pastAddResult, true, "Adding a song already in pastRecommendations should fail.");
-    assertEquals((pastAddResult as { error: string }).error, `Song '${song1}' has already been recommended to user '${userA}'.`);
+    error = undefined;
+    console.log(`\nAttempting to add ${song1} to ${userA}'s catalog (already in past recommendations).`);
+    try {
+      await addSongToCatalog(db, userA, song1); // Attempt to add a song already in past
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    assertExists(
+      error,
+      "Adding a song already in pastRecommendations should throw an error.",
+    );
+    assertEquals(
+      error,
+      `Song '${song1}' has already been recommended to user '${userA}'.`,
+    );
+    console.log(`  ❌ Requirement check: Failed as expected. Error: ${error}`);
   } finally {
     await client.close();
   }
 });
 
-Deno.test("Action: generateRecommendation successfully moves songs and returns them", async () => {
+Deno.test("Action: generateRecommendation - Valid generation", async () => {
   const [db, client] = await testDb();
-  const recommender = new SongRecommenderConcept(db);
-
   try {
-    await recommender.addSongToCatalog({ user: userA, song: song1 });
-    await recommender.addSongToCatalog({ user: userA, song: song2 });
-    await recommender.addSongToCatalog({ user: userA, song: song3 });
+    console.log("\n--- Action Test: generateRecommendation - Valid generation ---");
+    console.log(`Setup: Adding ${song1}, ${song2}, ${song3} to ${userB}'s catalog.`);
+    await addSongToCatalog(db, userB, song1);
+    await addSongToCatalog(db, userB, song2);
+    await addSongToCatalog(db, userB, song3);
+    console.log(`  ✅ Songs successfully added.`);
 
-    const recResult = await recommender.generateRecommendation({ user: userA, count: 2 });
-    assertEquals("error" in recResult, false, "Generating recommendation should succeed.");
-    const { songs } = recResult as { songs: ID[] };
-    assertEquals(songs.length, 2, "Should return 2 songs.");
-    assertArrayIncludes([song1, song2], songs, "Should return the first two songs.");
+    console.log(`\nAction: Generating 2 recommendations for ${userB}.`);
+    const recommendedSongs = await generateRecommendation(db, userB, 2);
+    console.log(`  ✅ Action successful. Returned songs: ${recommendedSongs.join(", ")}.`);
 
-    const userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs.length, 1, "Only one song should remain in notYetRecommended.");
-    assertEquals(userCatalog.notYetRecommendedSongs[0], song3, "song3 should remain in notYetRecommended.");
-    assertEquals(userCatalog.pastRecommendations.length, 2, "Two songs should be in pastRecommendations.");
-    assertArrayIncludes(userCatalog.pastRecommendations, [song1, song2], "song1 and song2 should be in pastRecommendations.");
+    assertEquals(
+      recommendedSongs.length,
+      2,
+      "Should return 2 recommended songs.",
+    );
+    assertEquals(
+      recommendedSongs.includes(song1),
+      true,
+      `Returned songs should include ${song1}.`,
+    );
+    assertEquals(
+      recommendedSongs.includes(song2),
+      true,
+      `Returned songs should include ${song2}.`,
+    );
+    assertFalse(recommendedSongs.includes(song3), `Returned songs should not include ${song3}.`);
+    console.log(`  ✅ Effect confirmed: Correct songs returned.`);
+
+    const userCatalog = await _getUserCatalog(db).findOne({ _id: userB });
+    expectExists(userCatalog);
+    assertEquals(
+      userCatalog.notYetRecommendedSongs.length,
+      1,
+      "notYetRecommendedSongs should have 1 song left.",
+    );
+    assertEquals(
+      userCatalog.notYetRecommendedSongs[0],
+      song3,
+      `${song3} should be the remaining song.`,
+    );
+    assertEquals(
+      userCatalog.pastRecommendations.length,
+      2,
+      "pastRecommendations should have 2 songs.",
+    );
+    assert(
+      userCatalog.pastRecommendations.includes(song1),
+      `pastRecommendations should include ${song1}.`,
+    );
+    assert(
+      userCatalog.pastRecommendations.includes(song2),
+      `pastRecommendations should include ${song2}.`,
+    );
+    console.log(
+      `  ✅ Effect confirmed: State updated. Not-yet-recommended: ${userCatalog.notYetRecommendedSongs}, Past: ${userCatalog.pastRecommendations}.`,
+    );
   } finally {
     await client.close();
   }
 });
 
-Deno.test("Action: generateRecommendation requires enough songs", async () => {
+Deno.test("Action: generateRecommendation - Requires: count less than or equal to available songs", async () => {
   const [db, client] = await testDb();
-  const recommender = new SongRecommenderConcept(db);
-
   try {
-    await recommender.addSongToCatalog({ user: userA, song: song1 }); // Only 1 song available
+    console.log("\n--- Action Test: generateRecommendation - Invalid count handling ---");
+    console.log(`Setup: Adding ${song1}, ${song2} to ${userA}'s catalog.`);
+    await addSongToCatalog(db, userA, song1);
+    await addSongToCatalog(db, userA, song2);
+    console.log(`  ✅ Songs successfully added. Available: 2.`);
 
-    // Request more songs than available
-    const resultTooMany = await recommender.generateRecommendation({ user: userA, count: 2 });
-    assertEquals("error" in resultTooMany, true, "Requesting too many songs should fail.");
-    assertEquals((resultTooMany as { error: string }).error, "Not enough songs available for recommendation. Requested 2, but only 1 available.");
+    let error: string | undefined;
 
-    // Request from user with no songs
-    const resultNoSongs = await recommender.generateRecommendation({ user: userB, count: 1 });
-    assertEquals("error" in resultNoSongs, true, "Requesting from a user with no songs should fail.");
-    assertEquals((resultNoSongs as { error: string }).error, `No songs available for recommendation for user '${userB}'.`);
+    console.log(`\nAttempting to generate 3 recommendations (more than available).`);
+    try {
+      await generateRecommendation(db, userA, 3); // Request more than available
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    assertExists(
+      error,
+      "Generating more songs than available should throw an error.",
+    );
+    assertEquals(
+      error,
+      `Not enough songs available for user '${userA}'. Requested 3, but only 2 are available.`,
+    );
+    console.log(`  ❌ Requirement check: Failed as expected. Error: ${error}`);
 
-    // Request 0 or negative songs
-    const resultZero = await recommender.generateRecommendation({ user: userA, count: 0 });
-    assertEquals("error" in resultZero, true, "Requesting 0 songs should fail.");
-    assertEquals((resultZero as { error: string }).error, "Count must be a positive number.");
-    const resultNegative = await recommender.generateRecommendation({ user: userA, count: -1 });
-    assertEquals("error" in resultNegative, true, "Requesting negative songs should fail.");
-    assertEquals((resultNegative as { error: string }).error, "Count must be a positive number.");
+    error = undefined;
+    console.log(`\nAttempting to generate 0 recommendations.`);
+    try {
+      await generateRecommendation(db, userA, 0); // Request zero songs
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    assertExists(error, "Generating zero songs should throw an error.");
+    assertEquals(error, "Count for recommendations must be a positive number.");
+    console.log(`  ❌ Requirement check: Failed as expected. Error: ${error}`);
+
+    error = undefined;
+    console.log(`\nAttempting to generate -1 recommendations (negative count).`);
+    try {
+      await generateRecommendation(db, userA, -1); // Request negative songs
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    assertExists(error, "Generating negative songs should throw an error.");
+    assertEquals(error, "Count for recommendations must be a positive number.");
+    console.log(`  ❌ Requirement check: Failed as expected. Error: ${error}`);
+
+    error = undefined;
+    console.log(`\nAttempting to generate recommendations for a nonexistent user.`);
+    try {
+      await generateRecommendation(db, "nonexistentUser" as ID, 1);
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    assertExists(
+      error,
+      "Generating for a nonexistent user should throw an error.",
+    );
+    assertEquals(
+      error,
+      `User 'nonexistentUser' not found or has no songs available for recommendation.`,
+    );
+    console.log(`  ❌ Requirement check: Failed as expected. Error: ${error}`);
   } finally {
     await client.close();
   }
 });
 
-Deno.test("Action: removeSong successfully removes a song from notYetRecommendedSongs", async () => {
+Deno.test("Action: removeSong - Valid removal", async () => {
   const [db, client] = await testDb();
-  const recommender = new SongRecommenderConcept(db);
-
   try {
-    await recommender.addSongToCatalog({ user: userA, song: song1 });
-    await recommender.addSongToCatalog({ user: userA, song: song2 });
+    console.log("\n--- Action Test: removeSong - Valid removal ---");
+    console.log(`Setup: Adding ${song1}, ${song2} to ${userA}'s catalog.`);
+    await addSongToCatalog(db, userA, song1);
+    await addSongToCatalog(db, userA, song2);
+    console.log(`  ✅ Songs successfully added.`);
 
-    let userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs.length, 2);
-    assertArrayIncludes(userCatalog.notYetRecommendedSongs, [song1, song2]);
+    console.log(`\nAction: Removing ${song1} from ${userA}'s not-yet-recommended songs.`);
+    await removeSong(db, userA, song1);
+    console.log(`  ✅ Action successful.`);
 
-    const removeResult = await recommender.removeSong({ user: userA, song: song1 });
-    assertEquals("error" in removeResult, false, "Removing an existing song should succeed.");
-
-    userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs.length, 1, "One song should be removed.");
-    assertEquals(userCatalog.notYetRecommendedSongs[0], song2, "Only song2 should remain.");
+    const userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+    expectExists(userCatalog);
+    assertEquals(
+      userCatalog.notYetRecommendedSongs.length,
+      1,
+      "notYetRecommendedSongs should have 1 song left.",
+    );
+    assertEquals(
+      userCatalog.notYetRecommendedSongs[0],
+      song2,
+      `${song2} should be the remaining song.`,
+    );
+    assertFalse(
+      userCatalog.notYetRecommendedSongs.includes(song1),
+      `${song1} should no longer be in notYetRecommendedSongs.`,
+    );
+    console.log(
+      `  ✅ Effect confirmed: ${song1} removed from notYetRecommendedSongs. Remaining: ${userCatalog.notYetRecommendedSongs}.`,
+    );
   } finally {
     await client.close();
   }
 });
 
-Deno.test("Action: removeSong requires song to be in notYetRecommendedSongs", async () => {
+Deno.test("Action: removeSong - Requires: song to be in notYetRecommendedSongs", async () => {
   const [db, client] = await testDb();
-  const recommender = new SongRecommenderConcept(db);
-
   try {
-    await recommender.addSongToCatalog({ user: userA, song: song1 });
-    await recommender.addSongToCatalog({ user: userA, song: song2 });
-    await recommender.generateRecommendation({ user: userA, count: 1 }); // song1 moves to past
+    console.log("\n--- Action Test: removeSong - Invalid removal handling ---");
+    console.log(`Setup: Adding ${song1}, ${song2} to ${userA}'s catalog.`);
+    await addSongToCatalog(db, userA, song1);
+    await addSongToCatalog(db, userA, song2);
+    // Move song1 to pastRecommendations to test that scenario
+    await generateRecommendation(db, userA, 1);
+    console.log(
+      `  ✅ Setup complete: ${song1} is now in pastRecommendations, ${song2} is in notYetRecommendedSongs.`,
+    );
 
-    // Try removing a song that is in pastRecommendations
-    const removePastResult = await recommender.removeSong({ user: userA, song: song1 });
-    assertEquals("error" in removePastResult, true, "Removing a song from pastRecommendations should fail.");
-    assertEquals((removePastResult as { error: string }).error, `Song '${song1}' is not in notYetRecommendedSongs for user '${userA}'.`);
+    let error: string | undefined;
+    console.log(`\nAttempting to remove ${song1} (which is in pastRecommendations).`);
+    try {
+      await removeSong(db, userA, song1); // Attempt to remove a song from pastRecommendations
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    assertExists(
+      error,
+      "Removing a song from pastRecommendations should throw an error.",
+    );
+    assertEquals(
+      error,
+      `Song '${song1}' not found in not-yet-recommended songs for user '${userA}'.`,
+    );
+    console.log(`  ❌ Requirement check: Failed as expected. Error: ${error}`);
 
-    // Try removing a non-existent song
-    const removeNonExistentResult = await recommender.removeSong({ user: userA, song: song4 });
-    assertEquals("error" in removeNonExistentResult, true, "Removing a non-existent song should fail.");
-    assertEquals((removeNonExistentResult as { error: string }).error, `Song '${song4}' is not in notYetRecommendedSongs for user '${userA}'.`);
-  } finally {
-    await client.close();
-  }
-});
+    error = undefined;
+    console.log(`\nAttempting to remove ${song3} (a nonexistent song).`);
+    try {
+      await removeSong(db, userA, song3); // Attempt to remove a nonexistent song
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    assertExists(error, "Removing a nonexistent song should throw an error.");
+    assertEquals(
+      error,
+      `Song '${song3}' not found in not-yet-recommended songs for user '${userA}'.`,
+    );
+    console.log(`  ❌ Requirement check: Failed as expected. Error: ${error}`);
 
-Deno.test("Action: generateRecommendationFromLLM adds new songs to catalog", async () => {
-  const [db, client] = await testDb();
-  const recommender = new SongRecommenderConcept(db);
-
-  try {
-    // LLM is a mock, so we just pass a string
-    const llmMock = "Gemini" as GeminiLLM;
-
-    // Generate 3 new songs for userA
-    const result = await recommender.generateRecommendationFromLLM({ user: userA, llm: llmMock, count: 3 });
-    assertEquals("error" in result, false, "LLM generation should succeed.");
-
-    const userCatalog = await recommender._getUserCatalog(userA);
-    assertExists(userCatalog);
-    assertEquals(userCatalog.notYetRecommendedSongs.length, 3, "Three new songs should be added.");
-    assertEquals(userCatalog.pastRecommendations.length, 0, "Past recommendations should remain empty.");
-
-    // Generate more songs
-    await recommender.generateRecommendationFromLLM({ user: userA, llm: llmMock, count: 2 });
-    const updatedCatalog = await recommender._getUserCatalog(userA);
-    assertExists(updatedCatalog);
-    assertEquals(updatedCatalog.notYetRecommendedSongs.length, 5, "Total five songs should be added.");
-
-    // Edge case: Request 0 or negative songs
-    const resultZero = await recommender.generateRecommendationFromLLM({ user: userA, llm: llmMock, count: 0 });
-    assertEquals("error" in resultZero, true, "Requesting 0 songs should fail.");
-    assertEquals((resultZero as { error: string }).error, "Count must be a positive number.");
+    error = undefined;
+    console.log(`\nAttempting to remove a song for a nonexistent user.`);
+    try {
+      await removeSong(db, "nonexistentUser" as ID, song1); // Attempt to remove for nonexistent user
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    assertExists(
+      error,
+      "Removing for a nonexistent user should throw an error.",
+    );
+    assertEquals(
+      error,
+      `Song '${song1}' not found in not-yet-recommended songs for user 'nonexistentUser'.`,
+    );
+    console.log(`  ❌ Requirement check: Failed as expected. Error: ${error}`);
   } finally {
     await client.close();
   }
 });
 ```
-
-# trace:
-
-The following trace demonstrates how the **principle** of the `SongRecommender` concept is fulfilled by a sequence of actions.
-
-1.  **Given**: A user `userA`.
-2.  **Action**: `userA` initially adds several songs to their catalog that they might want to be recommended later.
-    ```
-    SongRecommender.addSongToCatalog({ user: "userA", song: "song1" })
-    SongRecommender.addSongToCatalog({ user: "userA", song: "song2" })
-    SongRecommender.addSongToCatalog({ user: "userA", song: "song3" })
-    ```
-3.  **Result**: `song1`, `song2`, `song3` are added to `userA`'s `notYetRecommendedSongs`.
-    ```
-    {} // for each call
-    // Internal state: userA's notYetRecommendedSongs = ["song1", "song2", "song3"], pastRecommendations = []
-    ```
-4.  **Action**: The system, acting daily, generates a recommendation for `userA`.
-    ```
-    SongRecommender.generateRecommendation({ user: "userA", count: 1 })
-    ```
-5.  **Result**: A song (e.g., `song1`) is returned as a recommendation. This song is moved from `notYetRecommendedSongs` to `pastRecommendations`.
-    ```
-    { songs: ["song1"] }
-    // Internal state: userA's notYetRecommendedSongs = ["song2", "song3"], pastRecommendations = ["song1"]
-    ```
-6.  **Action**: On the next day, the system generates another recommendation for `userA`.
-    ```
-    SongRecommender.generateRecommendation({ user: "userA", count: 1 })
-    ```
-7.  **Result**: Another song (e.g., `song2`) is returned as a recommendation and moved to `pastRecommendations`.
-    ```
-    { songs: ["song2"] }
-    // Internal state: userA's notYetRecommendedSongs = ["song3"], pastRecommendations = ["song1", "song2"]
-    ```
-8.  **Verification**: The user can "revisit" past recommendations by checking their `pastRecommendations` list.
-    ```
-    SongRecommender._getUserCatalog("userA")
-    ```
-9.  **Result**: The user's catalog shows `song1` and `song2` in `pastRecommendations`, indicating they have been recommended and can be revisited.
-    ```
-    {
-      _id: "userA",
-      notYetRecommendedSongs: ["song3"],
-      pastRecommendations: ["song1", "song2"]
-    }
-    ```
-10. **Action**: `userA` decides they don't want `song3` to ever be recommended, so they remove it from their catalog before it's presented.
-    ```
-    SongRecommender.removeSong({ user: "userA", song: "song3" })
-    ```
-11. **Result**: `song3` is successfully removed from `userA`'s `notYetRecommendedSongs`.
-    ```
-    {}
-    // Internal state: userA's notYetRecommendedSongs = [], pastRecommendations = ["song1", "song2"]
-    ```
