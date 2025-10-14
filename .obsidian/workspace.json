@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "src/concepts/UserAuthentication/test_output.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "test_output"
             }
           },
           {
@@ -41,16 +41,16 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "design/concepts/LikertSurvey/implementation.md",
+                "file": "src/concepts/UserAuthentication/design_changes.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "implementation"
+              "title": "design_changes"
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -198,43 +198,43 @@
       "bases:Create new base": false
     }
   },
-  "active": "1821565ccbe694b9",
+  "active": "2038d430f50f46f1",
   "lastOpenFiles": [
-    "summary.md",
-    "README.md",
-    "src/concepts/SongRecommender/spec.md",
-    "design/concepts/SongRecommender/implementation.md",
-    "design/concepts/SongRecommender/concept-improvement.md",
-    "design/concepts/SongRecommender/testing.md",
-    "src/concepts/SongRecommender/test_output.md",
     "src/concepts/SongRecommender/design_changes.md",
-    "src/design_changes.md",
-    "context/design/concepts/SongRecommender/testing.md/20251013_133008.21b62e17.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/response.2ed11ae4.md",
-    "context/design/concepts/SongRecommender/testing.md/20251013_132923.f8343847.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/prompt.48f55c6f.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/trace.5b6e2653.md",
-    "context/design/concepts/SongRecommender/testing.md/steps/file.7b4c2a93.md",
-    "context/deno.json/20251013_132923.7b4c2a93.md",
+    "src/concepts/UserAuthentication/design_changes.md",
+    "src/concepts/UserAuthentication/spec.md",
+    "src/concepts/SongRecommender/spec.md",
+    "src/concepts/SongRecommender/test_output.md",
+    "src/concepts/UserAuthentication/test_output.md",
+    "design/concepts/UserAuthentication/implementation.md",
+    "design/concepts/LikertSurvey/implementation.md",
+    "README.md",
+    "design/concepts/UserAuthentication/testing.md",
+    "context/design/concepts/UserAuthentication/testing.md/20251013_230222.5f6949b3.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/file.4b47b855.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/response.32e31ac2.md",
+    "context/design/concepts/UserAuthentication/testing.md/20251013_230153.76d016b6.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/prompt.f94dcd22.md",
+    "context/design/concepts/UserAuthentication/testing.md/20251013_230110.f7b17617.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/file.54c8466b.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/response.03682df4.md",
+    "context/design/concepts/UserAuthentication/testing.md/20251013_230044.12f24276.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/prompt.420c68ea.md",
+    "src/concepts/UserAuthentication/UserAuthenticationConcept.test.ts",
+    "context/design/concepts/UserAuthentication/testing.md/20251013_224730.d746a405.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/file.017c05c1.md",
+    "context/design/concepts/UserAuthentication/testing.md/20251013_224701.b2e86af3.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/test.6f2c0140.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/trace.e9db0ffb.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/file.1aabccc1.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps",
+    "src/concepts/UserAuthentication/UserAuthenticationConcept.ts",
+    "src/concepts/UserAuthentication",
+    "context/design/concepts/UserAuthentication/implementation.md/steps",
+    "context/design/concepts/UserAuthentication/concept-creation.md/steps",
+    "context/design/concepts/UserAuthentication",
+    "design/concepts/UserAuthentication",
     "node_modules/bson/lib 2",
-    "node_modules/bson/LICENSE 2.md",
-    "node_modules/bson/README 2.md",
-    "node_modules/bson/package 2.json",
-    "node_modules/mongodb/mongodb.d.ts",
-    "node_modules/mongodb/lib/beta.d.ts",
-    "node_modules/mongodb/src/cmap/wire_protocol/on_demand/document.ts",
-    "node_modules/mongodb/src/cmap/auth/mongodb_oidc/command_builders.ts",
-    "node_modules/mongodb/src/cmap/auth/mongodb_oidc/token_machine_workflow.ts",
-    "node_modules/mongodb/src/cmap/auth/mongodb_oidc/token_cache.ts",
-    "node_modules/mongodb/src/cmap/auth/mongodb_oidc/k8s_machine_workflow.ts",
-    "node_modules/mongodb/src/cmap/auth/mongodb_oidc/human_callback_workflow.ts",
-    "node_modules/mongodb/LICENSE.md",
-    "node_modules/@mongodb-js/saslprep/readme.md",
-    "node_modules/webidl-conversions/README.md",
-    "node_modules/webidl-conversions/LICENSE.md",
-    "node_modules/tr46/LICENSE.md",
-    "node_modules/tr46/README.md",
-    "node_modules/whatwg-url/README.md",
-    "node_modules/bson/vendor/text-encoding/README.md"
+    "node_modules/bson/package 2.json"
   ]
 }
