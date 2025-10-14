@@ -25,7 +25,7 @@
 [Test Output](src/concepts/Ranking/test_output.md)
 [Design Changes](src/concepts/Ranking/design_changes.md)
 ## Concept 5: Reaction
-[spec](src/concepts/Reaction/spec.md)
+[Concept Spec](src/concepts/Reaction/spec.md)
 [Implementation](src/concepts/Reaction/ReactionConcept.ts)
 [Testing](src/concepts/Reaction/ReactionConcept.test.ts)
 [Test Output](src/concepts/Reaction/test_output.md)
