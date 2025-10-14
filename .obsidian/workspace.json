@@ -8,63 +8,7 @@
         "type": "tabs",
         "children": [
           {
-            "id": "e6495e920e1c3ce7",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "summary.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "summary"
-            }
-          },
-          {
-            "id": "0e78ef1e43e21954",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "design/concepts/Ranking/implementation.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "implementation"
-            }
-          },
-          {
-            "id": "2aa175840c8ffbb1",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "src/concepts/Ranking/design_changes.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "design_changes"
-            }
-          },
-          {
-            "id": "ad14e19330312b78",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "src/concepts/Ranking/design_changes.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "design_changes"
-            }
-          },
-          {
-            "id": "dbe8b3ed0b1443b0",
+            "id": "46f1b638cd408172",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -77,8 +21,7 @@
               "title": "README"
             }
           }
-        ],
-        "currentTab": 4
+        ]
       }
     ],
     "direction": "vertical"
@@ -226,43 +169,43 @@
       "bases:Create new base": false
     }
   },
-  "active": "dbe8b3ed0b1443b0",
+  "active": "46f1b638cd408172",
   "lastOpenFiles": [
+    "design/concepts/Reaction/testing.md",
+    "design/concepts/Reaction/implementation.md",
     "design/concepts/Ranking/testing.md",
-    "src/concepts/Ranking/design_changes.md",
-    "src/concepts/Ranking/spec.md",
-    "src/concepts/Ranking/test_output.md",
-    "design/concepts/Ranking/concept-improvement.md",
-    "design/concepts/Ranking/implementation.md",
-    "context/design/concepts/Ranking/testing.md/20251014_014207.7c5ed9eb.md",
-    "context/design/concepts/Ranking/testing.md/steps/file.6c47dfac.md",
-    "context/design/concepts/Ranking/testing.md/steps/file.64a360d2.md",
-    "context/design/concepts/Ranking/testing.md/steps/file.7552a3c8.md",
-    "context/design/concepts/Ranking/testing.md/20251014_014046.519df1d6.md",
-    "context/design/concepts/Ranking/testing.md/steps/prompt.b91469e9.md",
-    "context/design/concepts/Ranking/testing.md/20251014_013814.779fe778.md",
-    "context/design/concepts/Ranking/testing.md/steps/trace.97542920.md",
-    "context/design/concepts/Ranking/testing.md/steps/file.81b96873.md",
-    "context/design/concepts/Ranking/testing.md/steps/_.5f7518aa.md",
-    "context/design/concepts/Ranking/testing.md/steps/trace.670b8c4a.md",
-    "context/design/concepts/Ranking/testing.md/steps/file.b45976fd.md",
-    "context/design/concepts/Ranking/testing.md/steps/file.86728870.md",
-    "context/design/concepts/Ranking/testing.md/steps/_.6643af79.md",
+    "src/concepts/Reaction/design_changes.md",
+    "README.md",
+    "src/concepts/Reaction/test_output.md",
+    "src/concepts/Reaction/spec.md",
+    "context/design/concepts/Reaction/testing.md/20251014_015716.ef562614.md",
+    "context/design/concepts/Reaction/testing.md/steps/file.b225fdc0.md",
+    "context/design/concepts/Reaction/testing.md/20251014_015637.4173d31e.md",
+    "context/design/concepts/Reaction/testing.md/steps/prompt.ee9104eb.md",
+    "context/design/concepts/Reaction/testing.md/20251014_015543.87a2d914.md",
+    "context/design/concepts/Reaction/testing.md/steps/prompt.6a4fecbc.md",
+    "context/design/concepts/Reaction/testing.md/20251014_015419.06703127.md",
+    "context/design/concepts/Reaction/testing.md/steps/file.55031183.md",
+    "context/design/concepts/Reaction/testing.md/20251014_015354.bc7e58f6.md",
+    "context/design/concepts/Reaction/testing.md/steps/test.3f950adb.md",
+    "context/design/concepts/Reaction/testing.md/steps/trace.e9db0ffb.md",
+    "context/design/concepts/Reaction/testing.md/steps/file.1aabccc1.md",
+    "context/design/concepts/Reaction/testing.md/steps/test.a05b34aa.md",
+    "context/design/concepts/Reaction/testing.md/steps/file.11edfed3.md",
+    "context/design/concepts/Reaction/testing.md/steps/concept.7f5806fa.md",
+    "context/design/concepts/Reaction/testing.md/steps/response.6d76b65d.md",
+    "context/design/concepts/Reaction/testing.md/steps/implement.36ad48d6.md",
+    "context/design/concepts/Reaction/testing.md/steps/_.1bf7fdfc.md",
+    "context/design/concepts/Reaction/testing.md/steps/_.62ed2634.md",
+    "context/design/concepts/Reaction/testing.md/steps",
+    "src/concepts/Reaction/ReactionConcept.test.ts",
+    "src/concepts/Reaction/ReactionConcept.ts",
+    "context/design/concepts/Reaction/implementation.md/steps",
+    "context/design/concepts/Reaction/concept-improvement.md/steps",
+    "context/design/concepts/Reaction",
     "src/concepts/Ranking/RankingConcept.test.ts",
-    "context/design/concepts/Ranking/testing.md/20251014_013659.a350ef86.md",
-    "context/design/concepts/Ranking/testing.md/steps/prompt.fed92ac7.md",
-    "context/design/concepts/Ranking/testing.md/20251014_013633.07816230.md",
-    "context/design/concepts/Ranking/testing.md/steps/file.aa7f3bd7.md",
-    "context/design/concepts/Ranking/testing.md/steps/file.d009e798.md",
-    "context/design/concepts/Ranking/testing.md/steps/concept.eeaee3f8.md",
     "context/design/concepts/Ranking/testing.md/steps",
     "src/concepts/Ranking/RankingConcept.ts",
-    "context/design/concepts/Ranking/implementation.md/steps",
-    "context/design/concepts/Ranking/concept-improvement.md/steps",
-    "context/design/concepts/Ranking",
-    "src/concepts/Post/PostConcept.test.ts",
-    "context/design/concepts/Post/testing.md/steps",
-    "context/design/concepts/Post",
-    "src/concepts/Post/PostConcept.ts"
+    "context/design/concepts/Ranking/implementation.md/steps"
   ]
 }
