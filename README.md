@@ -7,6 +7,11 @@
 [Test Output](src/concepts/SongRecommender/test_output.md)
 [Design Changes](src/concepts/SongRecommender/design_changes.md)
 ## Concept 2: UserAuthentication
+[Concept Spec](src/concepts/UserAuthentication/spec.md)
+[Implementation](src/concepts/UserAuthentication/UserAuthenticationConcept.ts)
+[Testing](src/concepts/UserAuthentication/UserAuthentication.test.ts)
+[Test Output](src/concepts/UserAuthentication/test_output.md)
+[Design Changes](src/concepts/UserAuthentication/design_changes.md)
 ## Concept 3: Posts
 ## Concept 4: Ranking
 ## Concept 5: Friends
