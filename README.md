@@ -19,6 +19,11 @@
 [Test Output](src/concepts/Post/test_output.md)
 [Design Changes](src/concepts/Post/design_changes.md)
 ## Concept 4: Ranking
+[Concept Spec](src/concepts/Ranking/spec.md)
+[Implementation](src/concepts/Ranking/RankingConcept.ts)
+[Testing](src/concepts/Ranking/RankingConcept.test.ts)
+[Test Output](src/concepts/Ranking/test_output.md)
+[Design Changes](src/concepts/Ranking/design_changes.md)
 ## Concept 5: Reaction
 
 ## Interesting Moments + Overall Design Changes
