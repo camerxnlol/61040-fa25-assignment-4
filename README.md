@@ -9,12 +9,17 @@
 ## Concept 2: UserAuthentication
 [Concept Spec](src/concepts/UserAuthentication/spec.md)
 [Implementation](src/concepts/UserAuthentication/UserAuthenticationConcept.ts)
-[Testing](src/concepts/UserAuthentication/UserAuthentication.test.ts)
+[Testing](src/concepts/UserAuthentication/UserAuthenticationConcept.test.ts)
 [Test Output](src/concepts/UserAuthentication/test_output.md)
 [Design Changes](src/concepts/UserAuthentication/design_changes.md)
-## Concept 3: Posts
+## Concept 3: Post
+[Concept Spec](src/concepts/Post/spec.md)
+[Implementation](src/concepts/Post/PostConcept.ts)
+[Testing](src/concepts/Post/PostConcept.test.ts)
+[Test Output](src/concepts/Post/test_output.md)
+[Design Changes](src/concepts/Post/design_changes.md)
 ## Concept 4: Ranking
-## Concept 5: Friends
+## Concept 5: Reaction
 
 ## Interesting Moments + Overall Design Changes
 [summary](summary.md)
