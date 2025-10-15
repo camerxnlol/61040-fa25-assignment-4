@@ -1,7 +1,7 @@
 # concept: Ranking \[User, SongId]
 
 **purpose** To allow users to order songs relative to one another and generate a dynamic ladder of preferences over time.
-**principle** When a user listens to a song, they can compare it to songs they’ve already ranked. The system then assigns each song a score (e.g., 1–10) and adjusts the user’s overall rankings dynamically as more data is provided, allowing them to view their personalized ranked list at any time.
+**principle** When a user listens to a song, they can compare it to songs they’ve already ranked. The system then assigns each song a score (e.g., 1–100) and adjusts the user’s overall rankings dynamically as more data is provided, allowing them to view their personalized ranked list at any time.
 
 **state**
 a map from `User` to `UserRanking`

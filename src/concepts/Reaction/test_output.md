@@ -45,14 +45,11 @@ Queries: _getReactionsForPost and _getReactionsByPostAndUser work correctly ...
 --- Test: Query functionality ---
 Setup: Adding multiple reactions...
 ✅ Querying reactions for Post A (post:article_123).
-✅ Verified: Post A has reactions: ["user:Alice-❤️","user:Alice-👍","user:Bob-👍"]
+✅ Verified: Post A has reactions: \["user:Alice-❤️","user:Alice-👍","user:Bob-👍"]
 ✅ Querying reactions for Post B (post:image_456).
 ✅ Verified: Post B has reaction: user:Alice-😂
 ✅ Querying reactions for Post A (post:article_123) by Alice (user:Alice).
-✅ Verified: Alice has reactions on Post A: ["❤️","👍"]
+✅ Verified: Alice has reactions on Post A: \["❤️","👍"]
 ✅ Querying reactions for Post A (post:article_123) by Bob (user:Bob).
 ✅ Verified: Bob has reactions on Post A: user:Bob-👍
 Queries: _getReactionsForPost and _getReactionsByPostAndUser work correctly ... ok (767ms)
-
-running 7 tests from ./src/concepts/SongRecommender/SongRecommenderConcept.test.ts
-Principle: User gets daily song recommendations, past recommendations are tracked ...

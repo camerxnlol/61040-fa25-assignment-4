@@ -1,21 +1,21 @@
 --- Starting Ranking Principle Test ---
-User Alice has no rankings initially: {"error":"User ranking not found for the given user."}
+User Alice has no rankings initially
 
 Action: Alice compares song:Wonderwall vs song:BohemianRhapsody, prefers song:Wonderwall.
-Alice's rankings after 1st comparison: [{"songId":"song:Wonderwall","score":60},{"songId":"song:BohemianRhapsody","score":40}]
+Alice's rankings after 1st comparison: \[{"songId":"song:Wonderwall","score":60},{"songId":"song:BohemianRhapsody","score":40}]
 
 Action: Alice compares song:Wonderwall vs song:StairwayToHeaven, prefers song:Wonderwall.
-Alice's rankings after 2nd comparison: [{"songId":"song:Wonderwall","score":70},{"songId":"song:BohemianRhapsody","score":40},{"songId":"song:StairwayToHeaven","score":40}]
+Alice's rankings after 2nd comparison: \[{"songId":"song:Wonderwall","score":70},{"songId":"song:BohemianRhapsody","score":40},{"songId":"song:StairwayToHeaven","score":40}]
 
 Action: Alice compares song:BohemianRhapsody vs song:StairwayToHeaven, prefers song:StairwayToHeaven.
-Alice's rankings after 3rd comparison: [{"songId":"song:Wonderwall","score":70},{"songId":"song:StairwayToHeaven","score":50},{"songId":"song:BohemianRhapsody","score":30}]
+Alice's rankings after 3rd comparison: \[{"songId":"song:Wonderwall","score":70},{"songId":"song:StairwayToHeaven","score":50},{"songId":"song:BohemianRhapsody","score":30}]
 
 Action: Bob compares song:Wonderwall vs song:BohemianRhapsody, prefers song:BohemianRhapsody.
-Bob's rankings: [{"songId":"song:BohemianRhapsody","score":60},{"songId":"song:Wonderwall","score":40}]
+Bob's rankings: \[{"songId":"song:BohemianRhapsody","score":60},{"songId":"song:Wonderwall","score":40}]
 Confirmed Alice's rankings are independent of Bob's actions. ✅
 
 Action: Alice removes song:BohemianRhapsody from her rankings.
-Alice's rankings after removing song:BohemianRhapsody: [{"songId":"song:Wonderwall","score":70},{"songId":"song:StairwayToHeaven","score":50}]
+Alice's rankings after removing song:BohemianRhapsody: \[{"songId":"song:Wonderwall","score":70},{"songId":"song:StairwayToHeaven","score":50}]
 --- Principle Test Completed Successfully ---
 Principle: User ranks songs, scores adjust dynamically, and rankings are viewable ... ok (1s)
 
@@ -34,12 +34,12 @@ Result: User ranking created for user:Alice.
 
   Effects: Adds new songs with default score ...
 Action: Add comparison for another new user, checking default scores.
-Result: Bob's initial rankings: [{"songId":"song:Wonderwall","score":60},{"songId":"song:BohemianRhapsody","score":40}]
+Result: Bob's initial rankings: \[{"songId":"song:Wonderwall","score":60},{"songId":"song:BohemianRhapsody","score":40}]
   Effects: Adds new songs with default score ... ok (201ms)
 
   Effects: Adjusts scores correctly (preferred increases, other decreases) ...
 Action: Bob compares B vs A, prefers A. (A:60, B:40 before from previous step)
-Result: Bob's adjusted rankings: [{"songId":"song:Wonderwall","score":70},{"songId":"song:BohemianRhapsody","score":30}]
+Result: Bob's adjusted rankings: \[{"songId":"song:Wonderwall","score":70},{"songId":"song:BohemianRhapsody","score":30}]
   Effects: Adjusts scores correctly (preferred increases, other decreases) ... ok (100ms)
 
   Effects: Score clamping (min and max scores) ...
@@ -53,7 +53,7 @@ Action: remove requirements and effects ...
 
 --- Testing remove requirements and effects ---
 Setup: Alice ranks A, B, C.
-Setup Complete. Alice's rankings: [{"songId":"song:StairwayToHeaven","score":60},{"songId":"song:Wonderwall","score":50},{"songId":"song:BohemianRhapsody","score":40}]
+Setup Complete. Alice's rankings: \[{"songId":"song:StairwayToHeaven","score":60},{"songId":"song:Wonderwall","score":50},{"songId":"song:BohemianRhapsody","score":40}]
 
   Requires: user exists in the concept state ...
 Action: Attempt to remove song for a non-existent user.
@@ -67,7 +67,7 @@ Result: Expected error caught: SongId 'song:HotelCalifornia' not found in user's
 
   Effects: deletes song from the user's RankedSong set ...
 Action: Alice removes song:BohemianRhapsody.
-Result: Alice's rankings after removing song:BohemianRhapsody: [{"songId":"song:StairwayToHeaven","score":60},{"songId":"song:Wonderwall","score":50}]
+Result: Alice's rankings after removing song:BohemianRhapsody: \[{"songId":"song:StairwayToHeaven","score":60},{"songId":"song:Wonderwall","score":50}]
   Effects: deletes song from the user's RankedSong set ... ok (74ms)
 --- remove tests completed ---
 Action: remove requirements and effects ... ok (767ms)
@@ -83,10 +83,7 @@ Result: Expected error caught: User ranking not found for the given user.
   Effects: returns current RankedSong entries, ordered by score (descending) ...
 Action: Add several comparisons for Alice to establish a ranking order.
 Action: Get Alice's rankings.
-Result: Alice's rankings (ordered): [{"songId":"song:Wonderwall","score":60},{"songId":"song:BohemianRhapsody","score":50},{"songId":"song:StairwayToHeaven","score":40}]
+Result: Alice's rankings (ordered): \[{"songId":"song:Wonderwall","score":60},{"songId":"song:BohemianRhapsody","score":50},{"songId":"song:StairwayToHeaven","score":40}]
   Effects: returns current RankedSong entries, ordered by score (descending) ... ok (116ms)
 --- _getRankings tests completed ---
 Query: _getRankings requirements and effects ... ok (677ms)
-
-running 7 tests from ./src/concepts/SongRecommender/SongRecommenderConcept.test.ts
-Principle: User gets daily song recommendations, past recommendations are tracked ...

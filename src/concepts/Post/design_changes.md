@@ -1,6 +1,6 @@
 # Design Changes for Post
 
-**Problem:** `actionDescription` is too specific to "ranking actions." The `Post` concept's responsibility is to *store* a visible record, not to *interpret* or *generate* specific action descriptions. The *content* of the post (e.g., "User X ranked Song Y five stars") should be provided by an external concept (like `Ranking`) via a synchronization.
+**Problem:** `actionDescription` is too specific to "ranking actions." The `Post` concept's responsibility is to *store* a visible record, not to *interpret* or *generate* specific action descriptions. The *content* of the post should be provided by an external concept (like `Ranking`) via a synchronization.
     *   **Principle Violated:** Separation of Concerns (conflating generic posting with specific action summarization).
     *   **Improvement:** Rename `actionDescription` to `content: String`.
 **Reclassify `view` as a Query:**

@@ -1,5 +1,15 @@
-# Interesting Moments + Overall Design Changes
+# Interesting Moments
 
 1) [prompt.7c0354b1](context/design/concepts/SongRecommender/concept-improvement.md/steps/prompt.7c0354b1.md) I found that asking ctx to be more critical led to more helpful feedback when iterating on my concepts: [response.09d6ddf7](context/design/concepts/SongRecommender/concept-improvement.md/steps/response.09d6ddf7.md)
 2) [20251014_005834.44314f3b](context/design/concepts/Posts/concept-improvement.md/20251014_005834.44314f3b.md) ctx helped me realized that the view action in my Post concept should be moved to a query and explained why. This was helpful for me draw a finer line between actions and queries.
-3) 
+3) [20251014_010955.e1142c4f](context/design/concepts/Post/testing.md/20251014_010955.e1142c4f.md) At the bottom of this prompt, I attached the LikertSurvey implementation instead of my Post implementation as context. Surprisingly, ctx was still able to produce relevant and correct tests for the concept.
+4) In general, the LLM was able to one-shot all of my tests. I was surprised that little iteration was needed for testing, as it covered detailed edge cases that I did not think of myself. The only iteration that was needed was improving the console logs to be more clear what it was doing. I used this prompt often to include emojis for clarity in my tests. [prompt.fed92ac7](context/design/concepts/Ranking/testing.md/steps/prompt.fed92ac7.md)
+5) I understand salting passwords as a concept, but the cryptography packages needed to implement this were hard to use. I turned to ctx to fix the type errors that I was getting when implementing the UserAuthentication concept. I don't fully understand this error, but it is more clear to me than if ctx hadn't given this response. [response.e6beef2f](context/design/concepts/UserAuthentication/testing.md/steps/response.e6beef2f.md)
+
+# Design Changes
+
+Overall, there were little overarching design changes of the app. Most design changes were concept-level modifications that made the concepts adhere more to principles of concepts. Summaries of the changes can be found in the [README](README.md).
+
+The one large design change that was made was the removal of the friending concept. When I think about what I want this app to be, I think of it as a place to share music rankings with everyone. Users should have the courage to display their rankings publicly. This leads to a more open environment where users are encouraged to defends their takes, and these differences in opinions can lead to interesting discussion.
+
+I realized that from my previous assignment that I was missing a user authentication concept. This concept is so common that it completely slipped my mind. However, this concept is crucial for security on the app. We wouldn't want a random person modifying our personal rankings. And thus, for the reasons above, I exchanged the friending concept for the user authentication concept.

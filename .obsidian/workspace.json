@@ -4,24 +4,39 @@
     "type": "split",
     "children": [
       {
-        "id": "2a4216d713a31f25",
+        "id": "c952aacb94cfbd19",
         "type": "tabs",
         "children": [
           {
-            "id": "46f1b638cd408172",
+            "id": "c31fd29fdc669102",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "context/design/concepts/UserAuthentication/testing.md/steps/response.e6beef2f.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "response.e6beef2f"
+            }
+          },
+          {
+            "id": "397b09928425ef80",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "summary.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "summary"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -169,34 +184,34 @@
       "bases:Create new base": false
     }
   },
-  "active": "46f1b638cd408172",
+  "active": "397b09928425ef80",
   "lastOpenFiles": [
-    "design/concepts/Reaction/testing.md",
-    "design/concepts/Reaction/implementation.md",
-    "design/concepts/Ranking/testing.md",
-    "src/concepts/Reaction/design_changes.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/response.e6beef2f.md",
+    "summary.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/response.03682df4.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/response.46e19606.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/response.32e31ac2.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/response.9f270d21.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/response.6d76b65d.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/prompt.f94dcd22.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/prompt.f19c538b.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/prompt.420c68ea.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/prompt.3c0ae2d2.md",
+    "context/design/concepts/UserAuthentication/testing.md/steps/Generic Parameters.087161ea.md",
+    "context/design/concepts/UserAuthentication/implementation.md/steps/approach.5df2171f.md",
+    "context/design/concepts/UserAuthentication/implementation.md/steps/response.e6beef2f.md",
+    "context/design/concepts/UserAuthentication/implementation.md/steps/response.46e19606.md",
+    "context/design/concepts/UserAuthentication/implementation.md/steps/response.9f270d21.md",
+    "context/design/concepts/UserAuthentication/implementation.md/steps/prompt.f19c538b.md",
+    "context/design/concepts/UserAuthentication/implementation.md/steps/prompt.3c0ae2d2.md",
+    "context/design/concepts/UserAuthentication/concept-creation.md/steps/prompt.f19c538b.md",
+    "context/design/concepts/Ranking/testing.md/steps/prompt.fed92ac7.md",
     "README.md",
-    "src/concepts/Reaction/test_output.md",
-    "src/concepts/Reaction/spec.md",
-    "context/design/concepts/Reaction/testing.md/20251014_015716.ef562614.md",
-    "context/design/concepts/Reaction/testing.md/steps/file.b225fdc0.md",
-    "context/design/concepts/Reaction/testing.md/20251014_015637.4173d31e.md",
-    "context/design/concepts/Reaction/testing.md/steps/prompt.ee9104eb.md",
-    "context/design/concepts/Reaction/testing.md/20251014_015543.87a2d914.md",
-    "context/design/concepts/Reaction/testing.md/steps/prompt.6a4fecbc.md",
-    "context/design/concepts/Reaction/testing.md/20251014_015419.06703127.md",
-    "context/design/concepts/Reaction/testing.md/steps/file.55031183.md",
-    "context/design/concepts/Reaction/testing.md/20251014_015354.bc7e58f6.md",
-    "context/design/concepts/Reaction/testing.md/steps/test.3f950adb.md",
-    "context/design/concepts/Reaction/testing.md/steps/trace.e9db0ffb.md",
-    "context/design/concepts/Reaction/testing.md/steps/file.1aabccc1.md",
-    "context/design/concepts/Reaction/testing.md/steps/test.a05b34aa.md",
-    "context/design/concepts/Reaction/testing.md/steps/file.11edfed3.md",
-    "context/design/concepts/Reaction/testing.md/steps/concept.7f5806fa.md",
-    "context/design/concepts/Reaction/testing.md/steps/response.6d76b65d.md",
-    "context/design/concepts/Reaction/testing.md/steps/implement.36ad48d6.md",
-    "context/design/concepts/Reaction/testing.md/steps/_.1bf7fdfc.md",
-    "context/design/concepts/Reaction/testing.md/steps/_.62ed2634.md",
+    "context/design/concepts/Ranking/testing.md/steps/response.6d76b65d.md",
+    "context/design/concepts/Ranking/testing.md/steps/prompt.a7ab79a9.md",
+    "context/design/concepts/Post/testing.md/20251014_010955.e1142c4f.md",
+    "context/design/concepts/Posts/concept-improvement.md/20251014_005834.44314f3b.md",
+    "src/concepts/SongRecommender/spec.md",
     "context/design/concepts/Reaction/testing.md/steps",
     "src/concepts/Reaction/ReactionConcept.test.ts",
     "src/concepts/Reaction/ReactionConcept.ts",

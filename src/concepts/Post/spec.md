@@ -11,7 +11,6 @@ state
 
 actions
   create (userId, content: String, timestamp: DateTime): (post: Post)
-    // Note: The timestamp could also be system-generated if preferred, or provided by the caller.
     effects: Adds a new post with a unique postId, associating the provided authorId, content, and timestamp, returning the created post's identifier.
 
   delete (post: Post)
