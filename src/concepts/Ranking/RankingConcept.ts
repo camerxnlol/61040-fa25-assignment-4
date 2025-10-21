@@ -47,24 +47,66 @@ export default class RankingConcept {
   }
 
   /**
-   * addComparison (user: User, songA: SongId, songB: SongId, preferred: SongId): Empty | {error: string}
+   * addComparison (user: User, songA: SongId, songB?: SongId, preferred: SongId): Empty | {error: string}
    *
    * **requires** user exists in the concept state, or a new ranking can be created for them
-   * **requires** preferred is either songA or songB
+   * **requires** preferred is either songA or songB (if songB is provided)
+   * **requires** if songB is not provided, preferred must be songA
    *
    * **effects**
    * - If the `user` does not have a `UserRanking`, an empty one is created for them.
    * - If `songA` or `songB` are not in the `user`'s `RankedSong` set, they are added with a neutral default score.
-   * - Adjusts the `score` of `songA` and `songB` for the given `user` based on `preferred` and updates the ranking order of their `RankedSong` set.
+   * - If `songB` is not provided, only `songA` is added to the ranking with default score.
+   * - If `songB` is provided, adjusts the `score` of `songA` and `songB` for the given `user` based on `preferred` and updates the ranking order of their `RankedSong` set.
    */
   async addComparison(
     { user, songA, songB, preferred }: {
       user: User;
       songA: SongId;
-      songB: SongId;
+      songB?: SongId;
       preferred: SongId;
     },
   ): Promise<Empty | { error: string }> {
+    // Handle single song case
+    if (!songB) {
+      if (preferred !== songA) {
+        return {
+          error: "When comparing a single song, preferred must be that song.",
+        };
+      }
+
+      let userRanking = await this.userRankings.findOne({ _id: user });
+
+      // If user ranking doesn't exist, initialize it
+      if (!userRanking) {
+        userRanking = { _id: user, rankedSongs: [] };
+      }
+
+      // Check if songA already exists in the ranking
+      const existingSong = userRanking.rankedSongs.find((rs) =>
+        rs.songId === songA
+      );
+      if (existingSong) {
+        return { error: "Song already exists in user's ranking." };
+      }
+
+      // Add songA with default score
+      userRanking.rankedSongs.push({
+        songId: songA,
+        score: this.DEFAULT_SCORE,
+      });
+
+      // Update the user's ranking in the database
+      await this.userRankings.updateOne(
+        { _id: user },
+        { $set: { rankedSongs: userRanking.rankedSongs } },
+        { upsert: true },
+      );
+
+      return {};
+    }
+
+    // Handle comparison case (songB is provided)
     if (preferred !== songA && preferred !== songB) {
       return { error: "Preferred song must be either songA or songB." };
     }
