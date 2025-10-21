@@ -1,13 +1,11 @@
-import { assertEquals, assertExists, assertFalse, assert } from "@std/assert";
+import { assert, assertEquals, assertExists, assertFalse } from "@std/assert";
 import { testDb } from "@utils/database.ts";
 import { ID } from "@utils/types.ts";
 
 import {
-  _getUserCatalog, // Query function added for testing
-  addSongToCatalog,
-  generateRecommendation,
-  removeSong,
-} from "./SongRecommenderConcept.ts"; // Assuming these functions are exported
+  SongRecommenderConcept,
+  USER_SONG_CATALOG_COLLECTION,
+} from "./SongRecommenderConcept.ts";
 
 function expectExists<T>(
   value: T | null | undefined,
@@ -29,17 +27,26 @@ Deno.test("Principle: User gets daily song recommendations, past recommendations
 
   try {
     console.log("\n--- Principle Test: Daily Song Recommendations ---");
-    console.log("Scenario: An author adds songs, a user receives recommendations daily, and past recommendations are tracked.");
+    console.log(
+      "Scenario: An author adds songs, a user receives recommendations daily, and past recommendations are tracked.",
+    );
+
+    // Create an instance of the SongRecommenderConcept class
+    const songRecommender = new SongRecommenderConcept(db);
 
     // 1. Add several songs to userA's catalog
     console.log(`\nStep 1: Adding initial songs to ${userA}'s catalog.`);
-    await addSongToCatalog(db, userA, song1);
-    await addSongToCatalog(db, userA, song2);
-    await addSongToCatalog(db, userA, song3);
-    await addSongToCatalog(db, userA, song4);
-    console.log(`  ✅ Added ${song1}, ${song2}, ${song3}, ${song4} to ${userA}'s not-yet-recommended songs.`);
+    await songRecommender.addSongToCatalog(userA, song1);
+    await songRecommender.addSongToCatalog(userA, song2);
+    await songRecommender.addSongToCatalog(userA, song3);
+    await songRecommender.addSongToCatalog(userA, song4);
+    console.log(
+      `  ✅ Added ${song1}, ${song2}, ${song3}, ${song4} to ${userA}'s not-yet-recommended songs.`,
+    );
 
-    let userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+    let userCatalog = await db.collection(USER_SONG_CATALOG_COLLECTION).findOne(
+      { _id: userA },
+    );
     expectExists(userCatalog, "User catalog should exist after adding songs.");
     assertEquals(
       userCatalog.notYetRecommendedSongs.length,
@@ -51,11 +58,16 @@ Deno.test("Principle: User gets daily song recommendations, past recommendations
       0,
       "Initially, no songs should be past recommendations.",
     );
-    console.log(`  ✅ Initial state: ${userA} has ${userCatalog.notYetRecommendedSongs.length} not-yet-recommended songs and ${userCatalog.pastRecommendations.length} past recommendations.`);
+    console.log(
+      `  ✅ Initial state: ${userA} has ${userCatalog.notYetRecommendedSongs.length} not-yet-recommended songs and ${userCatalog.pastRecommendations.length} past recommendations.`,
+    );
 
     // 2. Generate the first recommendation for userA (e.g., for the first day)
     console.log(`\nStep 2: Generating 1 recommendation for ${userA} (Day 1).`);
-    const recommendedSongs1 = await generateRecommendation(db, userA, 1);
+    const recommendedSongs1 = await songRecommender.generateRecommendation(
+      userA,
+      1,
+    );
     assertEquals(
       recommendedSongs1.length,
       1,
@@ -66,9 +78,13 @@ Deno.test("Principle: User gets daily song recommendations, past recommendations
       song1,
       `First recommended song should be ${song1}.`,
     );
-    console.log(`  ✅ ${userA} received recommendation: ${recommendedSongs1[0]}.`);
+    console.log(
+      `  ✅ ${userA} received recommendation: ${recommendedSongs1[0]}.`,
+    );
 
-    userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+    userCatalog = await db.collection(USER_SONG_CATALOG_COLLECTION).findOne({
+      _id: userA,
+    });
     expectExists(userCatalog, "User catalog should still exist.");
     assertEquals(
       userCatalog.notYetRecommendedSongs.length,
@@ -85,11 +101,18 @@ Deno.test("Principle: User gets daily song recommendations, past recommendations
       song1,
       `${song1} should now be in past recommendations.`,
     );
-    console.log(`  ✅ State updated: Not-yet-recommended: ${userCatalog.notYetRecommendedSongs.length}, Past: ${userCatalog.pastRecommendations.length}.`);
+    console.log(
+      `  ✅ State updated: Not-yet-recommended: ${userCatalog.notYetRecommendedSongs.length}, Past: ${userCatalog.pastRecommendations.length}.`,
+    );
 
     // 3. Generate another recommendation for userA (e.g., for the second day)
-    console.log(`\nStep 3: Generating another 1 recommendation for ${userA} (Day 2).`);
-    const recommendedSongs2 = await generateRecommendation(db, userA, 1);
+    console.log(
+      `\nStep 3: Generating another 1 recommendation for ${userA} (Day 2).`,
+    );
+    const recommendedSongs2 = await songRecommender.generateRecommendation(
+      userA,
+      1,
+    );
     assertEquals(
       recommendedSongs2.length,
       1,
@@ -100,9 +123,13 @@ Deno.test("Principle: User gets daily song recommendations, past recommendations
       song2,
       `Second recommended song should be ${song2}.`,
     );
-    console.log(`  ✅ ${userA} received recommendation: ${recommendedSongs2[0]}.`);
+    console.log(
+      `  ✅ ${userA} received recommendation: ${recommendedSongs2[0]}.`,
+    );
 
-    userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+    userCatalog = await db.collection(USER_SONG_CATALOG_COLLECTION).findOne({
+      _id: userA,
+    });
     expectExists(userCatalog, "User catalog should still exist.");
     assertEquals(
       userCatalog.notYetRecommendedSongs.length,
@@ -116,23 +143,31 @@ Deno.test("Principle: User gets daily song recommendations, past recommendations
     );
     assert(
       userCatalog.pastRecommendations.includes(song1) &&
-      userCatalog.pastRecommendations.includes(song2),
+        userCatalog.pastRecommendations.includes(song2),
       `${song1} and ${song2} should be in past recommendations.`,
     );
-    console.log(`  ✅ State updated: Not-yet-recommended: ${userCatalog.notYetRecommendedSongs.length}, Past: ${userCatalog.pastRecommendations.length}.`);
+    console.log(
+      `  ✅ State updated: Not-yet-recommended: ${userCatalog.notYetRecommendedSongs.length}, Past: ${userCatalog.pastRecommendations.length}.`,
+    );
 
     // 4. Verify past recommendations can be revisited (implicitly, they are in the 'pastRecommendations' array)
     console.log(`\nStep 4: Verifying past recommendations can be viewed.`);
-    console.log(`  Current past recommendations: ${userCatalog.pastRecommendations.join(", ")}`);
+    console.log(
+      `  Current past recommendations: ${
+        userCatalog.pastRecommendations.join(", ")
+      }`,
+    );
     assert(
       userCatalog.pastRecommendations.includes(song1),
       `${song1} should be visible in past recommendations.`,
     );
     assert(
       userCatalog.pastRecommendations.includes(song2),
-      `${song2} should be visible in past recommendations.`
+      `${song2} should be visible in past recommendations.`,
     );
-    console.log(`  ✅ Confirmed: Both ${song1} and ${song2} are recorded in past recommendations.`);
+    console.log(
+      `  ✅ Confirmed: Both ${song1} and ${song2} are recorded in past recommendations.`,
+    );
 
     console.log("\n--- Principle Test Completed Successfully ✅ ---");
   } finally {
@@ -145,10 +180,13 @@ Deno.test("Action: addSongToCatalog - Valid addition", async () => {
   try {
     console.log("\n--- Action Test: addSongToCatalog - Valid addition ---");
     console.log(`Attempting to add ${song1} to ${userA}'s catalog.`);
-    await addSongToCatalog(db, userA, song1);
+
+    const songRecommender = new SongRecommenderConcept(db);
+    await songRecommender.addSongToCatalog(userA, song1);
     console.log(`  ✅ Action successful.`);
 
-    const userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+    const userCatalog = await db.collection(USER_SONG_CATALOG_COLLECTION)
+      .findOne({ _id: userA });
     expectExists(userCatalog, "User catalog should exist after adding a song.");
     assertEquals(
       userCatalog.notYetRecommendedSongs.includes(song1),
@@ -160,7 +198,9 @@ Deno.test("Action: addSongToCatalog - Valid addition", async () => {
       0,
       "Past recommendations should be empty for a new user.",
     );
-    console.log(`  ✅ Effect confirmed: ${song1} added to ${userA}'s notYetRecommendedSongs. Past recommendations are empty.`);
+    console.log(
+      `  ✅ Effect confirmed: ${song1} added to ${userA}'s notYetRecommendedSongs. Past recommendations are empty.`,
+    );
   } finally {
     await client.close();
   }
@@ -169,14 +209,22 @@ Deno.test("Action: addSongToCatalog - Valid addition", async () => {
 Deno.test("Action: addSongToCatalog - Requires: song not already in catalog", async () => {
   const [db, client] = await testDb();
   try {
-    console.log("\n--- Action Test: addSongToCatalog - Duplicate song handling ---");
-    await addSongToCatalog(db, userA, song1);
-    console.log(`  ✅ Setup: ${song1} added initially to ${userA}'s not-yet-recommended list.`);
+    console.log(
+      "\n--- Action Test: addSongToCatalog - Duplicate song handling ---",
+    );
+
+    const songRecommender = new SongRecommenderConcept(db);
+    await songRecommender.addSongToCatalog(userA, song1);
+    console.log(
+      `  ✅ Setup: ${song1} added initially to ${userA}'s not-yet-recommended list.`,
+    );
 
     let error: string | undefined;
-    console.log(`\nAttempting to add ${song1} again to ${userA}'s catalog (duplicate).`);
+    console.log(
+      `\nAttempting to add ${song1} again to ${userA}'s catalog (duplicate).`,
+    );
     try {
-      await addSongToCatalog(db, userA, song1); // Attempt to add duplicate
+      await songRecommender.addSongToCatalog(userA, song1); // Attempt to add duplicate
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : String(e);
     }
@@ -188,17 +236,27 @@ Deno.test("Action: addSongToCatalog - Requires: song not already in catalog", as
     console.log(`  ✅ Requirement check: Failed as expected. Error: ${error}`);
 
     // Simulate a song moving to pastRecommendations
-    await addSongToCatalog(db, userA, song2);
-    await generateRecommendation(db, userA, 2); // Move song1 and song2 to past
-    const userCatalogAfterMove = await _getUserCatalog(db).findOne({_id: userA});
+    await songRecommender.addSongToCatalog(userA, song2);
+    await songRecommender.generateRecommendation(userA, 2); // Move song1 and song2 to past
+    const userCatalogAfterMove = await db.collection(
+      USER_SONG_CATALOG_COLLECTION,
+    ).findOne({ _id: userA });
     expectExists(userCatalogAfterMove);
-    console.log(`  ✅ Setup: ${song1} and ${song2} moved to ${userA}'s pastRecommendations.`);
-    console.log(`  Current past recommendations: ${userCatalogAfterMove.pastRecommendations.join(", ")}`);
+    console.log(
+      `  ✅ Setup: ${song1} and ${song2} moved to ${userA}'s pastRecommendations.`,
+    );
+    console.log(
+      `  Current past recommendations: ${
+        userCatalogAfterMove.pastRecommendations.join(", ")
+      }`,
+    );
 
     error = undefined;
-    console.log(`\nAttempting to add ${song1} to ${userA}'s catalog (already in past recommendations).`);
+    console.log(
+      `\nAttempting to add ${song1} to ${userA}'s catalog (already in past recommendations).`,
+    );
     try {
-      await addSongToCatalog(db, userA, song1); // Attempt to add a song already in past
+      await songRecommender.addSongToCatalog(userA, song1); // Attempt to add a song already in past
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : String(e);
     }
@@ -219,16 +277,27 @@ Deno.test("Action: addSongToCatalog - Requires: song not already in catalog", as
 Deno.test("Action: generateRecommendation - Valid generation", async () => {
   const [db, client] = await testDb();
   try {
-    console.log("\n--- Action Test: generateRecommendation - Valid generation ---");
-    console.log(`Setup: Adding ${song1}, ${song2}, ${song3} to ${userB}'s catalog.`);
-    await addSongToCatalog(db, userB, song1);
-    await addSongToCatalog(db, userB, song2);
-    await addSongToCatalog(db, userB, song3);
+    console.log(
+      "\n--- Action Test: generateRecommendation - Valid generation ---",
+    );
+    console.log(
+      `Setup: Adding ${song1}, ${song2}, ${song3} to ${userB}'s catalog.`,
+    );
+
+    const songRecommender = new SongRecommenderConcept(db);
+    await songRecommender.addSongToCatalog(userB, song1);
+    await songRecommender.addSongToCatalog(userB, song2);
+    await songRecommender.addSongToCatalog(userB, song3);
     console.log(`  ✅ Songs successfully added.`);
 
     console.log(`\nAction: Generating 2 recommendations for ${userB}.`);
-    const recommendedSongs = await generateRecommendation(db, userB, 2);
-    console.log(`  ✅ Action successful. Returned songs: ${recommendedSongs.join(", ")}.`);
+    const recommendedSongs = await songRecommender.generateRecommendation(
+      userB,
+      2,
+    );
+    console.log(
+      `  ✅ Action successful. Returned songs: ${recommendedSongs.join(", ")}.`,
+    );
 
     assertEquals(
       recommendedSongs.length,
@@ -245,10 +314,14 @@ Deno.test("Action: generateRecommendation - Valid generation", async () => {
       true,
       `Returned songs should include ${song2}.`,
     );
-    assertFalse(recommendedSongs.includes(song3), `Returned songs should not include ${song3}.`);
+    assertFalse(
+      recommendedSongs.includes(song3),
+      `Returned songs should not include ${song3}.`,
+    );
     console.log(`  ✅ Effect confirmed: Correct songs returned.`);
 
-    const userCatalog = await _getUserCatalog(db).findOne({ _id: userB });
+    const userCatalog = await db.collection(USER_SONG_CATALOG_COLLECTION)
+      .findOne({ _id: userB });
     expectExists(userCatalog);
     assertEquals(
       userCatalog.notYetRecommendedSongs.length,
@@ -284,17 +357,23 @@ Deno.test("Action: generateRecommendation - Valid generation", async () => {
 Deno.test("Action: generateRecommendation - Requires: count less than or equal to available songs", async () => {
   const [db, client] = await testDb();
   try {
-    console.log("\n--- Action Test: generateRecommendation - Invalid count handling ---");
+    console.log(
+      "\n--- Action Test: generateRecommendation - Invalid count handling ---",
+    );
     console.log(`Setup: Adding ${song1}, ${song2} to ${userA}'s catalog.`);
-    await addSongToCatalog(db, userA, song1);
-    await addSongToCatalog(db, userA, song2);
+
+    const songRecommender = new SongRecommenderConcept(db);
+    await songRecommender.addSongToCatalog(userA, song1);
+    await songRecommender.addSongToCatalog(userA, song2);
     console.log(`  ✅ Songs successfully added. Available: 2.`);
 
     let error: string | undefined;
 
-    console.log(`\nAttempting to generate 3 recommendations (more than available).`);
+    console.log(
+      `\nAttempting to generate 3 recommendations (more than available).`,
+    );
     try {
-      await generateRecommendation(db, userA, 3); // Request more than available
+      await songRecommender.generateRecommendation(userA, 3); // Request more than available
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : String(e);
     }
@@ -311,7 +390,7 @@ Deno.test("Action: generateRecommendation - Requires: count less than or equal t
     error = undefined;
     console.log(`\nAttempting to generate 0 recommendations.`);
     try {
-      await generateRecommendation(db, userA, 0); // Request zero songs
+      await songRecommender.generateRecommendation(userA, 0); // Request zero songs
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : String(e);
     }
@@ -320,9 +399,11 @@ Deno.test("Action: generateRecommendation - Requires: count less than or equal t
     console.log(`  ✅ Requirement check: Failed as expected. Error: ${error}`);
 
     error = undefined;
-    console.log(`\nAttempting to generate -1 recommendations (negative count).`);
+    console.log(
+      `\nAttempting to generate -1 recommendations (negative count).`,
+    );
     try {
-      await generateRecommendation(db, userA, -1); // Request negative songs
+      await songRecommender.generateRecommendation(userA, -1); // Request negative songs
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : String(e);
     }
@@ -331,9 +412,11 @@ Deno.test("Action: generateRecommendation - Requires: count less than or equal t
     console.log(`  ✅ Requirement check: Failed as expected. Error: ${error}`);
 
     error = undefined;
-    console.log(`\nAttempting to generate recommendations for a nonexistent user.`);
+    console.log(
+      `\nAttempting to generate recommendations for a nonexistent user.`,
+    );
     try {
-      await generateRecommendation(db, "nonexistentUser" as ID, 1);
+      await songRecommender.generateRecommendation("nonexistentUser" as ID, 1);
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : String(e);
     }
@@ -356,15 +439,20 @@ Deno.test("Action: removeSong - Valid removal", async () => {
   try {
     console.log("\n--- Action Test: removeSong - Valid removal ---");
     console.log(`Setup: Adding ${song1}, ${song2} to ${userA}'s catalog.`);
-    await addSongToCatalog(db, userA, song1);
-    await addSongToCatalog(db, userA, song2);
+
+    const songRecommender = new SongRecommenderConcept(db);
+    await songRecommender.addSongToCatalog(userA, song1);
+    await songRecommender.addSongToCatalog(userA, song2);
     console.log(`  ✅ Songs successfully added.`);
 
-    console.log(`\nAction: Removing ${song1} from ${userA}'s not-yet-recommended songs.`);
-    await removeSong(db, userA, song1);
+    console.log(
+      `\nAction: Removing ${song1} from ${userA}'s not-yet-recommended songs.`,
+    );
+    await songRecommender.removeSong(userA, song1);
     console.log(`  ✅ Action successful.`);
 
-    const userCatalog = await _getUserCatalog(db).findOne({ _id: userA });
+    const userCatalog = await db.collection(USER_SONG_CATALOG_COLLECTION)
+      .findOne({ _id: userA });
     expectExists(userCatalog);
     assertEquals(
       userCatalog.notYetRecommendedSongs.length,
@@ -393,18 +481,22 @@ Deno.test("Action: removeSong - Requires: song to be in notYetRecommendedSongs",
   try {
     console.log("\n--- Action Test: removeSong - Invalid removal handling ---");
     console.log(`Setup: Adding ${song1}, ${song2} to ${userA}'s catalog.`);
-    await addSongToCatalog(db, userA, song1);
-    await addSongToCatalog(db, userA, song2);
+
+    const songRecommender = new SongRecommenderConcept(db);
+    await songRecommender.addSongToCatalog(userA, song1);
+    await songRecommender.addSongToCatalog(userA, song2);
     // Move song1 to pastRecommendations to test that scenario
-    await generateRecommendation(db, userA, 1);
+    await songRecommender.generateRecommendation(userA, 1);
     console.log(
       `  ✅ Setup complete: ${song1} is now in pastRecommendations, ${song2} is in notYetRecommendedSongs.`,
     );
 
     let error: string | undefined;
-    console.log(`\nAttempting to remove ${song1} (which is in pastRecommendations).`);
+    console.log(
+      `\nAttempting to remove ${song1} (which is in pastRecommendations).`,
+    );
     try {
-      await removeSong(db, userA, song1); // Attempt to remove a song from pastRecommendations
+      await songRecommender.removeSong(userA, song1); // Attempt to remove a song from pastRecommendations
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : String(e);
     }
@@ -421,7 +513,7 @@ Deno.test("Action: removeSong - Requires: song to be in notYetRecommendedSongs",
     error = undefined;
     console.log(`\nAttempting to remove ${song3} (a nonexistent song).`);
     try {
-      await removeSong(db, userA, song3); // Attempt to remove a nonexistent song
+      await songRecommender.removeSong(userA, song3); // Attempt to remove a nonexistent song
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : String(e);
     }
@@ -435,7 +527,7 @@ Deno.test("Action: removeSong - Requires: song to be in notYetRecommendedSongs",
     error = undefined;
     console.log(`\nAttempting to remove a song for a nonexistent user.`);
     try {
-      await removeSong(db, "nonexistentUser" as ID, song1); // Attempt to remove for nonexistent user
+      await songRecommender.removeSong("nonexistentUser" as ID, song1); // Attempt to remove for nonexistent user
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : String(e);
     }
