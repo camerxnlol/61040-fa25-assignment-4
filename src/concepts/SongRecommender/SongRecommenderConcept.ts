@@ -224,3 +224,6 @@ export class SongRecommenderConcept {
 
 // Export the class and necessary types for use by other modules
 // Note: The class and types are already exported above with the 'export' keyword
+
+// Default export for the concept server
+export default SongRecommenderConcept;
