@@ -78,17 +78,31 @@
             }
           },
           {
-            "id": "f22506e68d7661e5",
+            "id": "2485db4babed2237",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "design/concepts/SongRecommender/api-extraction.md",
+                "file": "design/concepts/Friends/api-extraction.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
               "title": "api-extraction"
+            }
+          },
+          {
+            "id": "548bc3c62e2baee2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "design/concepts/UserAuthentication/testing.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "testing"
             }
           }
         ],
@@ -240,43 +254,43 @@
       "bases:Create new base": false
     }
   },
-  "active": "f22506e68d7661e5",
+  "active": "2485db4babed2237",
   "lastOpenFiles": [
-    "context/design/concepts/SongRecommender/api-extraction.md/20251021_000248.b528533d.md",
-    "context/design/concepts/SongRecommender/api-extraction.md/steps/API Specification.dfba63c4.md",
-    "context/design/concepts/SongRecommender/api-extraction.md/20251021_000222.6ab9d4cb.md",
-    "context/design/concepts/SongRecommender/api-extraction.md/steps/prompt.a4e86691.md",
-    "context/design/concepts/SongRecommender/api-extraction.md/steps/file.c5561a4f.md",
-    "context/deno.json/20251021_000222.c5561a4f.md",
-    "all-api-spec.md",
-    "node_modules/mongodb 2",
+    "context/design/concepts/Friends/api-extraction.md/20251028_015130.89de73e6.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/API Specification.fb51251e.md",
+    "context/design/concepts/Friends/api-extraction.md/20251028_015112.a44d4072.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/prompt.59828a57.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/prompt.89f24e97.md",
     "design/concepts/UserAuthentication/api-extraction.md",
-    "design/concepts/SongRecommender/api-extraction.md",
-    "design/concepts/Reaction/api-extraction.md",
-    "design/concepts/Ranking/api-extraction.md",
-    "design/concepts/Post/api-extraction.md",
-    "design/tools/api-extraction-from-spec.md",
-    "design/tools/api-extraction-from-code.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/20251019_223948.042445af.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/API Specification.7c2d392c.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/response.6d76b65d.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/prompt.f2c79435.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/prompt.2e341510.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/prompt.1b97ccae.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/file.7b4c2a93.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/approach.5df2171f.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/_.fa3ad648.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/_.ee4d1e5e.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/_.db39d951.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps/_.92ef9357.md",
-    "context/design/concepts/UserAuthentication/api-extraction.md/steps",
-    "context/design/concepts/SongRecommender/api-extraction.md/steps",
-    "context/design/concepts/Reaction/api-extraction.md/steps",
-    "context/design/concepts/Ranking/api-extraction.md/steps",
-    "context/design/concepts/Post/api-extraction.md/steps",
-    "context/design/concepts/Post/concept-improvement.md/steps",
-    "context/design/concepts/Reaction/testing.md/steps",
-    "src/concepts/Reaction/ReactionConcept.test.ts",
-    "src/concepts/Reaction/ReactionConcept.ts"
+    "design/concepts/Friends/api-extraction.md",
+    "design/concepts/UserAuthentication/testing.md",
+    "context/design/concepts/Friends/api-extraction.md/20251028_014943.d45000da.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/API Specification.9a9e778c.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/response.6d76b65d.md",
+    "context/design/concepts/Friends/api-extraction.md/20251028_014924.b22c09f9.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/prompt.efe0c8e1.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/_.1bf7fdfc.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/_.2086d81d.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/_.db39d951.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/_.331f5a1f.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/file.c5561a4f.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/_.5da05fda.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/_.ee4d1e5e.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/_.534e93ad.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/Generic Parameters.087161ea.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/approach.5df2171f.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/_.3a59af90.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/_.92ef9357.md",
+    "context/design/concepts/Friends/api-extraction.md/steps/prompt.2e341510.md",
+    "context/design/concepts/Friends/api-extraction.md/steps",
+    "src/concepts/Friends/FreindsConcept.test.ts",
+    "context/design/concepts/Friends/testing.md/steps",
+    "src/concepts/Friends/FriendsConcept.ts",
+    "src/concepts/Friends",
+    "context/design/concepts/Friends/implementation.md/steps",
+    "context/design/concepts/Friends/concept-creation.md/steps",
+    "context/design/concepts/Friends",
+    "design/concepts/Friends",
+    "node_modules/mongodb 2"
   ]
 }
