@@ -53,60 +53,14 @@
             "id": "04a11ff160459b38",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "design/concepts/SongRecommender/api-extraction.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "api-extraction"
-            }
-          },
-          {
-            "id": "bb1cf93e84cd37ac",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "design/concepts/UserAuthentication/api-extraction.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "api-extraction"
-            }
-          },
-          {
-            "id": "2485db4babed2237",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "design/concepts/Friends/api-extraction.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "api-extraction"
-            }
-          },
-          {
-            "id": "548bc3c62e2baee2",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "design/concepts/UserAuthentication/testing.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "testing"
+              "title": "New tab"
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -254,43 +208,43 @@
       "bases:Create new base": false
     }
   },
-  "active": "2485db4babed2237",
+  "active": "04a11ff160459b38",
   "lastOpenFiles": [
-    "context/design/concepts/Friends/api-extraction.md/20251028_015130.89de73e6.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/API Specification.fb51251e.md",
-    "context/design/concepts/Friends/api-extraction.md/20251028_015112.a44d4072.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/prompt.59828a57.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/prompt.89f24e97.md",
-    "design/concepts/UserAuthentication/api-extraction.md",
-    "design/concepts/Friends/api-extraction.md",
-    "design/concepts/UserAuthentication/testing.md",
-    "context/design/concepts/Friends/api-extraction.md/20251028_014943.d45000da.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/API Specification.9a9e778c.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/response.6d76b65d.md",
-    "context/design/concepts/Friends/api-extraction.md/20251028_014924.b22c09f9.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/prompt.efe0c8e1.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/_.1bf7fdfc.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/_.2086d81d.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/_.db39d951.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/_.331f5a1f.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/file.c5561a4f.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/_.5da05fda.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/_.ee4d1e5e.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/_.534e93ad.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/Generic Parameters.087161ea.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/approach.5df2171f.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/_.3a59af90.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/_.92ef9357.md",
-    "context/design/concepts/Friends/api-extraction.md/steps/prompt.2e341510.md",
-    "context/design/concepts/Friends/api-extraction.md/steps",
-    "src/concepts/Friends/FreindsConcept.test.ts",
-    "context/design/concepts/Friends/testing.md/steps",
-    "src/concepts/Friends/FriendsConcept.ts",
-    "src/concepts/Friends",
-    "context/design/concepts/Friends/implementation.md/steps",
-    "context/design/concepts/Friends/concept-creation.md/steps",
-    "context/design/concepts/Friends",
-    "design/concepts/Friends",
-    "node_modules/mongodb 2"
+    "node_modules/bluebird/js 2",
+    "node_modules/es6-promise/lib 2",
+    "node_modules/readable-stream/lib 2",
+    "node_modules/require_optional/test 2",
+    "node_modules/readable-stream/doc 2",
+    "node_modules/mongodb-core/lib 2",
+    "node_modules/semver/semver 2.js",
+    "node_modules/inherits/LICENSE 2",
+    "node_modules/safe-buffer/index 2.js",
+    "node_modules/safe-buffer/index.d 2.ts",
+    "node_modules/require_optional/HISTORY 2.md",
+    "node_modules/inherits/inherits_browser 2.js",
+    "node_modules/inherits/README 2.md",
+    "node_modules/es6-promise/CHANGELOG 2.md",
+    "node_modules/es6-promise/README 2.md",
+    "node_modules/isarray/README 2.md",
+    "node_modules/process-nextick-args/readme 2.md",
+    "node_modules/readable-stream/GOVERNANCE 2.md",
+    "node_modules/safe-buffer/README 2.md",
+    "node_modules/readable-stream/CONTRIBUTING 2.md",
+    "node_modules/require_optional/README 2.md",
+    "node_modules/process-nextick-args/license 2.md",
+    "node_modules/semver/README 2.md",
+    "node_modules/readable-stream/README 2.md",
+    "context/design/brainstorming/questioning.md/20251008_170355.25b35d9e 2.md",
+    "context/design/brainstorming/questioning.md/20251009_101240.9d93e0c5 2.md",
+    "context/design/brainstorming/questioning.md/steps/prompt.329ab9e7 2.md",
+    "context/design/brainstorming/questioning.md/steps/response.45750e08 2.md",
+    "context/design/brainstorming/questioning.md/steps/response.98410873 2.md",
+    "context/design/brainstorming/questioning.md/20251009_101253.77905fd2 2.md",
+    "node_modules/mongodb-core/TESTING 2.md",
+    "node_modules/string_decoder/README 2.md",
+    "node_modules/buffer-shims/readme 2.md",
+    "node_modules/resolve-from/readme 2.md",
+    "node_modules/util-deprecate/History 2.md",
+    "node_modules/mongodb-core/HISTORY 2.md"
   ]
 }

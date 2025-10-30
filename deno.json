@@ -1,14 +1,33 @@
 {
     "imports": {
         "@concepts/": "./src/concepts/",
+<<<<<<< HEAD
         "@utils/": "./src/utils/",
         "@std/assert": "jsr:@std/assert@^1.0.0",
         "@hono/hono": "jsr:@hono/hono@^4.0.0",
         "@std/fs": "jsr:@std/fs@^1.0.0",
         "@std/cli": "jsr:@std/cli@^1.0.0",
         "@std/path": "jsr:@std/path@^1.0.0"
+=======
+        "@concepts": "./src/concepts/concepts.ts",
+        "@test-concepts": "./src/concepts/test_concepts.ts",
+        "@utils/": "./src/utils/",
+        "@engine": "./src/engine/mod.ts",
+        "@syncs": "./src/syncs/syncs.ts"
+>>>>>>> upstream/main
     },
     "tasks": {
-        "concepts": "deno run --allow-net --allow-read --allow-sys --allow-env src/concept_server.ts --port 8000 --baseUrl /api"
+        "start": "deno run --allow-net --allow-write --allow-read --allow-sys --allow-env src/main.ts",
+        "concepts": "deno run --allow-net --allow-read --allow-sys --allow-env src/concept_server.ts --port 8000 --baseUrl /api",
+        "import": "deno run --allow-read --allow-write --allow-env src/utils/generate_imports.ts",
+        "build": "deno run import"
+    },
+    "lint": {
+        "rules": {
+            "exclude": [
+                "no-import-prefix",
+                "no-unversioned-import"
+            ]
+        }
     }
 }
