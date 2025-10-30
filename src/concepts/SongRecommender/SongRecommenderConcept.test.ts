@@ -1,4 +1,4 @@
-import { assert, assertEquals, assertExists, assertFalse } from "@std/assert";
+import { assert, assertEquals, assertExists, assertFalse } from "jsr:@std/assert";
 import { testDb } from "@utils/database.ts";
 import { ID } from "@utils/types.ts";
 

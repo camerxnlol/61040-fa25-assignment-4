@@ -1,4 +1,4 @@
-import { assertEquals, assertNotEquals } from "@std/assert";
+import { assertEquals, assertNotEquals } from "jsr:@std/assert";
 import { testDb } from "@utils/database.ts";
 import { ID } from "@utils/types.ts";
 import FriendsConcept from "./FriendsConcept.ts";
