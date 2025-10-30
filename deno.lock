@@ -1,20 +1,13 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@hono/hono@*": "4.9.10",
-    "jsr:@hono/hono@4": "4.9.10",
-    "jsr:@std/assert@*": "1.0.7",
-    "jsr:@std/assert@1": "1.0.7",
-    "jsr:@std/cli@*": "1.0.22",
-    "jsr:@std/cli@1": "1.0.22",
+    "jsr:@hono/hono@*": "4.10.1",
+    "jsr:@std/cli@*": "1.0.23",
     "jsr:@std/dotenv@*": "0.225.2",
     "jsr:@std/fs@*": "1.0.19",
-    "jsr:@std/fs@1": "1.0.19",
-    "jsr:@std/internal@^1.0.10": "1.0.10",
-    "jsr:@std/internal@^1.0.5": "1.0.10",
-    "jsr:@std/internal@^1.0.9": "1.0.10",
+    "jsr:@std/internal@^1.0.10": "1.0.12",
+    "jsr:@std/internal@^1.0.9": "1.0.12",
     "jsr:@std/path@*": "1.0.8",
-    "jsr:@std/path@1": "1.1.2",
     "jsr:@std/path@^1.1.1": "1.1.2",
     "jsr:@std/uuid@*": "1.0.7",
     "jsr:@std/yaml@*": "1.0.9",
@@ -30,17 +23,11 @@
     "npm:sanitize-filename-ts@*": "1.0.2"
   },
   "jsr": {
-    "@hono/hono@4.9.10": {
-      "integrity": "b416cf3bf42e33353e37ea13df409b08bd9a67fabc5fca630f76924fbadb01e5"
+    "@hono/hono@4.10.1": {
+      "integrity": "cea3f17677afcd84a654cd1633c136e6bb2220bfa512fdac56614bb97c39fdbf"
     },
-    "@std/assert@1.0.7": {
-      "integrity": "64ce9fac879e0b9f3042a89b3c3f8ccfc9c984391af19e2087513a79d73e28c3",
-      "dependencies": [
-        "jsr:@std/internal@^1.0.5"
-      ]
-    },
-    "@std/cli@1.0.22": {
-      "integrity": "50d1e4f87887cb8a8afa29b88505ab5081188f5cad3985460c3b471fa49ff21a"
+    "@std/cli@1.0.23": {
+      "integrity": "bf95b7a9425ba2af1ae5a6359daf58c508f2decf711a76ed2993cd352498ccca"
     },
     "@std/dotenv@0.225.2": {
       "integrity": "e2025dce4de6c7bca21dece8baddd4262b09d5187217e231b033e088e0c4dd23"
@@ -52,8 +39,8 @@
         "jsr:@std/path@^1.1.1"
       ]
     },
-    "@std/internal@1.0.10": {
-      "integrity": "e3be62ce42cab0e177c27698e5d9800122f67b766a0bea6ca4867886cbde8cf7"
+    "@std/internal@1.0.12": {
+      "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
     },
     "@std/path@1.0.8": {
       "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
@@ -725,13 +712,6 @@
     "https://esm.sh/unist-util-visit@5.0.0/denonext/unist-util-visit.mjs": "a09fab16c3eafd466e5b5dab65ab76cb8f1eafa360b457eef35a529f59725d7f"
   },
   "workspace": {
-    "dependencies": [
-      "jsr:@hono/hono@4",
-      "jsr:@std/assert@1",
-      "jsr:@std/cli@1",
-      "jsr:@std/fs@1",
-      "jsr:@std/path@1"
-    ],
     "packageJson": {
       "dependencies": [
         "npm:mongo-db@^1.0.2",
