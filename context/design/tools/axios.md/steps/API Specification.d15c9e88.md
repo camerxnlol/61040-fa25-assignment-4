@@ -1,27 +1,14 @@
-[@api-extraction-from-spec](api-extraction-from-spec.md)
-[@concept-implementation](../../src/concepts/LikertSurvey/LikertSurveyConcept.ts)
-# Extracting from code
-
-The following is an explanation of how concepts are implemented, for the purposes of understanding how to extract an API.
-
-[@implementing-concepts](../background/implementing-concepts.md)
-
-# prompt: 
-
-Now, analyze the following Concept Implementation and generate the API documentation based on these instructions.
-# response:
-
-
-# response:
-
-
-# response:
+---
+timestamp: 'Fri Oct 24 2025 15:39:50 GMT-0400 (Eastern Daylight Time)'
+parent: '[[../20251024_153950.bfb1fd92.md]]'
+content_id: d15c9e88d5af6c2aaa853c439ebb0a6436211399a5769ab837d75dafdf28c765
+---
 
 # API Specification: Labeling Concept
 
 **Purpose:** organize items by associating descriptive keywords, allowing for flexible categorization and retrieval.
 
----
+***
 
 ## API Endpoints
 
@@ -30,14 +17,17 @@ Now, analyze the following Concept Implementation and generate the API documenta
 **Description:** Creates a new label with the given name and returns its identifier.
 
 **Requirements:**
-- No Label with the given `name` already exists.
+
+* No Label with the given `name` already exists.
 
 **Effects:**
-- Creates a new Label `l`.
-- Sets the name of `l` to `name`.
-- Returns `l` as `label`.
+
+* Creates a new Label `l`.
+* Sets the name of `l` to `name`.
+* Returns `l` as `label`.
 
 **Request Body:**
+
 ```json
 {
   "name": "string"
@@ -45,6 +35,7 @@ Now, analyze the following Concept Implementation and generate the API documenta
 ```
 
 **Success Response Body (Action):**
+
 ```json
 {
   "label": "ID"
@@ -52,27 +43,31 @@ Now, analyze the following Concept Implementation and generate the API documenta
 ```
 
 **Error Response Body:**
+
 ```json
 {
   "error": "string"
 }
 ```
 
----
+***
 
 ### POST /api/Labeling/addLabel
 
 **Description:** Associates an existing label with a specific item.
 
 **Requirements:**
-- The item must exist.
-- The label must exist.
-- The item is not already associated with this label.
+
+* The item must exist.
+* The label must exist.
+* The item is not already associated with this label.
 
 **Effects:**
-- Associates the given label with the specified item.
+
+* Associates the given label with the specified item.
 
 **Request Body:**
+
 ```json
 {
   "item": "ID",
@@ -81,32 +76,37 @@ Now, analyze the following Concept Implementation and generate the API documenta
 ```
 
 **Success Response Body (Action):**
+
 ```json
 {}
 ```
 
 **Error Response Body:**
+
 ```json
 {
   "error": "string"
 }
 ```
 
----
+***
 
 ### POST /api/Labeling/deleteLabel
 
 **Description:** Removes the association of a label from a specific item.
 
 **Requirements:**
-- The item must exist.
-- The label must exist.
-- The item is currently associated with this label.
+
+* The item must exist.
+* The label must exist.
+* The item is currently associated with this label.
 
 **Effects:**
-- Removes the association of the given label from the specified item.
+
+* Removes the association of the given label from the specified item.
 
 **Request Body:**
+
 ```json
 {
   "item": "ID",
@@ -115,15 +115,17 @@ Now, analyze the following Concept Implementation and generate the API documenta
 ```
 
 **Success Response Body (Action):**
+
 ```json
 {}
 ```
 
 **Error Response Body:**
+
 ```json
 {
   "error": "string"
 }
 ```
 
----
+***

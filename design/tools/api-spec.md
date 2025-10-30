@@ -1,22 +1,3 @@
-[@api-extraction-from-spec](api-extraction-from-spec.md)
-[@concept-implementation](../../src/concepts/LikertSurvey/LikertSurveyConcept.ts)
-# Extracting from code
-
-The following is an explanation of how concepts are implemented, for the purposes of understanding how to extract an API.
-
-[@implementing-concepts](../background/implementing-concepts.md)
-
-# prompt: 
-
-Now, analyze the following Concept Implementation and generate the API documentation based on these instructions.
-# response:
-
-
-# response:
-
-
-# response:
-
 # API Specification: Labeling Concept
 
 **Purpose:** organize items by associating descriptive keywords, allowing for flexible categorization and retrieval.
