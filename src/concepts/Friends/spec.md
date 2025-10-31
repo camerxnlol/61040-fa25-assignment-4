@@ -1,14 +1,3 @@
-[@concept-design-overview](../../background/concept-design-overview.md)
-
-[@concept-specifications](../../background/concept-specifications.md)
-
-# prompt: Create a concept called Friends that keeps track of relationship between users. It should include verifyFriendship, sendFriendRequest, acceptFriendRequest, rejectFriendRequest, and any other functions necessary.
-# response:
-
-Here is the concept design for `Friends`, following the provided structure:
-
-## Concept: Friends
-
 **concept** Friends \[User]
 
 **purpose** support users in establishing and managing mutual connections with other users
@@ -78,4 +67,4 @@ a set of FriendRequests with
 
 **getReceivedRequests (user: User): (senders: set of User)**
 *   **requires** true
-*   **effects** returns the set of all users who have sent a `
+*   **effects** returns the set of all users who have sent a
