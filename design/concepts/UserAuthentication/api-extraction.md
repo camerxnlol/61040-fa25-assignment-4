@@ -700,9 +700,7 @@ return { error: `User with ID '${user}' not found.` };
 ```
 
 
-# prompt: 
-
-Now, analyze the following Concept Implementation for UserAuthentication and generate the API documentation based on these instructions.
+# prompt: Now, analyze the following Concept Implementation for UserAuthentication and generate the API documentation based on these instructions.
 # response:
 
 # API Specification: UserAuthentication Concept
@@ -715,7 +713,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 
 ### POST /api/UserAuthentication/register
 
-**Description:** Creates a new user account with a unique username and a securely hashed password.
+**Description:** Creates a new user with a username and password.
 
 **Requirements:**
 - No User exists with the given `username`.
@@ -738,7 +736,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 **Success Response Body (Action):**
 ```json
 {
-  "user": "string"
+  "user": "ID"
 }
 ```
 
@@ -751,7 +749,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 ---
 ### POST /api/UserAuthentication/authenticate
 
-**Description:** Verifies user credentials and returns the user identifier upon successful authentication.
+**Description:** Verifies a user's credentials and returns their identifier upon success.
 
 **Requirements:**
 - A User exists with the given `username`.
@@ -772,7 +770,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 **Success Response Body (Action):**
 ```json
 {
-  "user": "string"
+  "user": "ID"
 }
 ```
 
@@ -785,7 +783,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 ---
 ### POST /api/UserAuthentication/delete
 
-**Description:** Removes a user and all their associated credentials from the system.
+**Description:** Deletes a user and all their associated data.
 
 **Requirements:**
 - The given `user` exists in the state.
@@ -796,7 +794,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 **Request Body:**
 ```json
 {
-  "user": "string"
+  "user": "ID"
 }
 ```
 
@@ -814,7 +812,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 ---
 ### POST /api/UserAuthentication/changePassword
 
-**Description:** Updates a user's password after verifying the old password.
+**Description:** Updates a user's password after verifying their old password.
 
 **Requirements:**
 - The given `user` exists in the state.
@@ -828,7 +826,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 **Request Body:**
 ```json
 {
-  "user": "string",
+  "user": "ID",
   "oldPassword": "string",
   "newPassword": "string"
 }
@@ -848,7 +846,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 ---
 ### POST /api/UserAuthentication/changeUsername
 
-**Description:** Updates a user's username after verifying their password and ensuring the new username is unique.
+**Description:** Updates a user's username after verifying their password.
 
 **Requirements:**
 - The given `user` exists in the state.
@@ -861,7 +859,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 **Request Body:**
 ```json
 {
-  "user": "string",
+  "user": "ID",
   "newUsername": "string",
   "password": "string"
 }
@@ -881,7 +879,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 ---
 ### POST /api/UserAuthentication/_getUserByUsername
 
-**Description:** Retrieves the user identifier for a given username.
+**Description:** Retrieves a user's identifier by their username.
 
 **Requirements:**
 - A User exists with the given `username`.
@@ -900,7 +898,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 ```json
 [
   {
-    "user": "string"
+    "user": "ID"
   }
 ]
 ```
@@ -914,7 +912,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 ---
 ### POST /api/UserAuthentication/_getUsername
 
-**Description:** Retrieves the username for a given user identifier.
+**Description:** Retrieves a username by their user identifier.
 
 **Requirements:**
 - The given `user` exists.
@@ -925,7 +923,7 @@ Now, analyze the following Concept Implementation for UserAuthentication and gen
 **Request Body:**
 ```json
 {
-  "user": "string"
+  "user": "ID"
 }
 ```
 

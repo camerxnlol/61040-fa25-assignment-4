@@ -253,9 +253,8 @@ return post ? [{ post: post }] : [];
 
 }
 ```
-# prompt: 
+# prompt:  Now, analyze the following Concept Implementation and generate the API documentation based on these instructions.
 
-Now, analyze the following Concept Implementation and generate the API documentation based on these instructions.
 # response:
 
 # API Specification: Post Concept
@@ -268,7 +267,7 @@ Now, analyze the following Concept Implementation and generate the API documenta
 
 ### POST /api/Post/create
 
-**Description:** Creates a new post, associating the provided user ID, content, and timestamp.
+**Description:** Creates a new post with the given content and attributes it to a user.
 
 **Requirements:**
 - Implicitly true; no specific preconditions are mentioned in the concept definition.
@@ -279,16 +278,16 @@ Now, analyze the following Concept Implementation and generate the API documenta
 **Request Body:**
 ```json
 {
-  "userId": "string",
+  "userId": "ID",
   "content": "string",
-  "timestamp": "string"
+  "timestamp": "Date"
 }
 ```
 
 **Success Response Body (Action):**
 ```json
 {
-  "post": "string"
+  "post": "ID"
 }
 ```
 
@@ -299,10 +298,9 @@ Now, analyze the following Concept Implementation and generate the API documenta
 }
 ```
 ---
-
 ### POST /api/Post/delete
 
-**Description:** Removes the specified post from the system.
+**Description:** Removes a specified post from the system.
 
 **Requirements:**
 - The post with the given `post` ID must exist.
@@ -313,7 +311,7 @@ Now, analyze the following Concept Implementation and generate the API documenta
 **Request Body:**
 ```json
 {
-  "post": "string"
+  "post": "ID"
 }
 ```
 
@@ -329,10 +327,9 @@ Now, analyze the following Concept Implementation and generate the API documenta
 }
 ```
 ---
-
 ### POST /api/Post/_getPostsByAuthor
 
-**Description:** Returns an array of all posts authored by the given author ID.
+**Description:** Retrieves all posts created by a specific author.
 
 **Requirements:**
 - The `authorId` is a valid identifier.
@@ -344,7 +341,7 @@ Now, analyze the following Concept Implementation and generate the API documenta
 **Request Body:**
 ```json
 {
-  "authorId": "string"
+  "authorId": "ID"
 }
 ```
 
@@ -353,10 +350,10 @@ Now, analyze the following Concept Implementation and generate the API documenta
 [
   {
     "post": {
-      "_id": "string",
-      "userId": "string",
+      "_id": "ID",
+      "userId": "ID",
       "content": "string",
-      "timestamp": "string"
+      "timestamp": "Date"
     }
   }
 ]
@@ -369,10 +366,9 @@ Now, analyze the following Concept Implementation and generate the API documenta
 }
 ```
 ---
-
 ### POST /api/Post/_getPostById
 
-**Description:** Returns the post with the matching post ID.
+**Description:** Retrieves a single post by its unique identifier.
 
 **Requirements:**
 - The `postId` is a valid identifier.
@@ -384,7 +380,7 @@ Now, analyze the following Concept Implementation and generate the API documenta
 **Request Body:**
 ```json
 {
-  "postId": "string"
+  "postId": "ID"
 }
 ```
 
@@ -393,10 +389,10 @@ Now, analyze the following Concept Implementation and generate the API documenta
 [
   {
     "post": {
-      "_id": "string",
-      "userId": "string",
+      "_id": "ID",
+      "userId": "ID",
       "content": "string",
-      "timestamp": "string"
+      "timestamp": "Date"
     }
   }
 ]

@@ -4,81 +4,38 @@
     "type": "split",
     "children": [
       {
-        "id": "e6a0ac3f5dabc7ee",
+        "id": "db023b62d096a21b",
         "type": "tabs",
         "children": [
           {
-            "id": "2a465826353f5413",
+            "id": "63597903454851f9",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "design/concepts/Post/api-extraction.md",
+                "file": "design/concepts/designing-syncs.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "api-extraction"
+              "title": "designing-syncs"
             }
           },
           {
-            "id": "1766566006344de4",
+            "id": "7e6d21ce9448fad4",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "design/concepts/Ranking/api-extraction.md",
+                "file": "design/concepts/answer.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "api-extraction"
-            }
-          },
-          {
-            "id": "9dab089e04dfa4f0",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "design/concepts/Reaction/api-extraction.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "api-extraction"
-            }
-          },
-          {
-            "id": "907e7d2938a5af9b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "design/concepts/Friends/concept-creation.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "concept-creation"
-            }
-          },
-          {
-            "id": "04a11ff160459b38",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "src/concepts/Friends/spec.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "spec"
+              "title": "answer"
             }
           }
-        ],
-        "currentTab": 4
+        ]
       }
     ],
     "direction": "vertical"
@@ -226,43 +183,43 @@
       "bases:Create new base": false
     }
   },
-  "active": "04a11ff160459b38",
+  "active": "63597903454851f9",
   "lastOpenFiles": [
-    "design/concepts/Friends/concept-creation.md",
-    "design/concepts/Reaction/api-extraction.md",
-    "src/concepts/Friends/spec.md",
-    "src/concepts/Friends 2",
-    "design/concepts/Ranking/api-extraction 2.md",
-    "all-api-spec 2.md",
-    "src/concepts/Reaction 2",
-    "node_modules/bson/lib/bson.cjs 2.map",
-    "design/concepts/Ranking/testing 2.md",
-    "design/concepts/Ranking/implementation 2.md",
-    "design/concepts/Ranking/concept-improvement 2.md",
-    "node_modules/bson/lib/bson.mjs 2.map",
-    "node_modules/bson/lib/bson 2.cjs",
-    "src/concepts/Post 2",
-    "node_modules/bson/src/objectid 2.ts",
-    "node_modules/bson/src/extended_json 2.ts",
-    "node_modules/bson/src/max_key 2.ts",
-    "node_modules/bson/src/constants 2.ts",
-    "node_modules/bson/README 3.md",
-    "node_modules/bson/LICENSE 3.md",
-    "node_modules/bson/README 4.md",
-    "summary 2.md",
-    "node_modules/bson/LICENSE 4.md",
-    "node_modules/tr46/LICENSE 2.md",
-    "node_modules/whatwg-url/README 2.md",
-    "node_modules/tr46/README 2.md",
-    "node_modules/webidl-conversions/LICENSE 2.md",
-    "node_modules/memory-pager/README 2.md",
-    "node_modules/sparse-bitfield/README 2.md",
-    "node_modules/punycode/README 2.md",
-    "node_modules/mongodb-connection-string-url/README 2.md",
-    "node_modules/webidl-conversions/README 2.md",
-    "node_modules/mongo-db/readme 2.md",
-    "node_modules/mongo-db/license 2.md",
-    "node_modules/require_optional/HISTORY 2.md",
-    "node_modules/inherits/README 2.md"
+    "context/design/concepts/designing-syncs.md/20251106_165403.ebd5b147.md",
+    "context/design/concepts/designing-syncs.md/steps/response.cd59dacb.md",
+    "context/design/concepts/designing-syncs.md/20251106_165252.bbe9431e.md",
+    "context/design/concepts/designing-syncs.md/steps/prompt.491ec238.md",
+    "context/design/concepts/designing-syncs.md/20251106_165136.eccdb432.md",
+    "context/design/concepts/designing-syncs.md/steps/response.6cf9ffdd.md",
+    "context/design/concepts/designing-syncs.md/20251106_165117.a8a804ad.md",
+    "context/design/concepts/designing-syncs.md/steps/prompt.43667a90.md",
+    "all-api-spec.md",
+    "design/concepts/designing-syncs.md",
+    "context/design/concepts/designing-syncs.md/20251106_102322.83c95899.md",
+    "context/design/concepts/designing-syncs.md/steps/response.3c3bd292.md",
+    "context/design/concepts/designing-syncs.md/20251106_102254.1ca718e0.md",
+    "context/design/concepts/designing-syncs.md/steps/prompt.b165484d.md",
+    "design/concepts/answer.md",
+    "context/design/concepts/designing-syncs.md/20251106_101031.ac198dab.md",
+    "context/design/concepts/designing-syncs.md/steps/response.9af3cddd.md",
+    "context/design/concepts/designing-syncs.md/20251106_100933.e3f5550d.md",
+    "context/design/concepts/designing-syncs.md/20251106_100909.c81803c0.md",
+    "context/design/concepts/designing-syncs.md/20251106_100855.d0fb9a5b.md",
+    "context/design/concepts/designing-syncs.md/20251106_100846.f9f80fa7.md",
+    "context/design/concepts/designing-syncs.md/20251106_100842.5777a53e.md",
+    "context/design/concepts/designing-syncs.md/steps/prompt.d692c964.md",
+    "context/design/concepts/designing-syncs.md/20251106_095028.2ada514a.md",
+    "context/design/concepts/designing-syncs.md/steps/response.bce2b4fe.md",
+    "context/design/concepts/designing-syncs.md/20251106_094915.f59d2ded.md",
+    "context/design/concepts/debugging-syncs.md/steps",
+    "src/syncs/userauthentication.sync.ts",
+    "src/syncs/songrecommender.sync.ts",
+    "src/syncs/reaction.sync.ts",
+    "src/syncs/ranking.sync.ts",
+    "src/syncs/posts.sync.ts",
+    "src/syncs/post.sync.ts",
+    "src/syncs/friends.sync.ts",
+    "src/syncs/friends-syncs.ts",
+    "context/design/concepts/designing-syncs.md/steps"
   ]
 }

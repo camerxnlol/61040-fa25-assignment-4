@@ -565,7 +565,6 @@ return [{ senders }];
 ```
 
 # prompt: Now, analyze the following Concept Implementation for Friends and generate the API documentation based on these instructions.
-
 # response:
 
 # API Specification: Friends Concept
@@ -578,7 +577,7 @@ return [{ senders }];
 
 ### POST /api/Friends/sendFriendRequest
 
-**Description:** Sends a new friend request from a sender to a recipient.
+**Description:** Sends a friend request from one user to another.
 
 **Requirements:**
 - `sender` is not equal to `recipient`
@@ -588,13 +587,13 @@ return [{ senders }];
 
 **Effects:**
 - A new `FriendRequest` is created from `sender` to `recipient`.
-- Returns `success: true` if successful, or `error: String` if any precondition is not met.
+- Returns `success: true` if successful.
 
 **Request Body:**
 ```json
 {
-  "sender": "string",
-  "recipient": "string"
+  "sender": "ID",
+  "recipient": "ID"
 }
 ```
 
@@ -612,24 +611,23 @@ return [{ senders }];
 }
 ```
 ---
-
 ### POST /api/Friends/acceptFriendRequest
 
-**Description:** Accepts an existing friend request, removing the request and establishing a new friendship.
+**Description:** Accepts a pending friend request, creating a mutual friendship.
 
 **Requirements:**
-- There is an existing `FriendRequest` from `sender` to `recipient`
+- There is an existing `FriendRequest` from `sender` to `recipient`.
 
 **Effects:**
 - The `FriendRequest` from `sender` to `recipient` is removed.
-- A new `Friendship` is created between `sender` and `recipient`. (The concept ensures `userA` and `userB` are stored in canonical order).
-- Returns `success: true` if successful, or `error: String` if the precondition is not met.
+- A new `Friendship` is created between `sender` and `recipient`.
+- Returns `success: true` if successful.
 
 **Request Body:**
 ```json
 {
-  "recipient": "string",
-  "sender": "string"
+  "recipient": "ID",
+  "sender": "ID"
 }
 ```
 
@@ -647,23 +645,22 @@ return [{ senders }];
 }
 ```
 ---
-
 ### POST /api/Friends/rejectFriendRequest
 
-**Description:** Rejects an existing friend request, removing the request.
+**Description:** Rejects a pending friend request from another user.
 
 **Requirements:**
-- There is an existing `FriendRequest` from `sender` to `recipient`
+- There is an existing `FriendRequest` from `sender` to `recipient`.
 
 **Effects:**
 - The `FriendRequest` from `sender` to `recipient` is removed.
-- Returns `success: true` if successful, or `error: String` if the precondition is not met.
+- Returns `success: true` if successful.
 
 **Request Body:**
 ```json
 {
-  "recipient": "string",
-  "sender": "string"
+  "recipient": "ID",
+  "sender": "ID"
 }
 ```
 
@@ -681,23 +678,22 @@ return [{ senders }];
 }
 ```
 ---
-
 ### POST /api/Friends/removeFriend
 
 **Description:** Removes an existing friendship between two users.
 
 **Requirements:**
-- There is an existing `Friendship` between `user1` and `user2`
+- There is an existing `Friendship` between `user1` and `user2`.
 
 **Effects:**
 - The `Friendship` between `user1` and `user2` is removed.
-- Returns `success: true` if successful, or `error: String` if the precondition is not met.
+- Returns `success: true` if successful.
 
 **Request Body:**
 ```json
 {
-  "user1": "string",
-  "user2": "string"
+  "user1": "ID",
+  "user2": "ID"
 }
 ```
 
@@ -715,23 +711,21 @@ return [{ senders }];
 }
 ```
 ---
-
 ### POST /api/Friends/_verifyFriendship
 
-**Description:** Checks if there is an existing friendship between two users.
+**Description:** Checks if a friendship exists between two users.
 
 **Requirements:**
 - true
 
 **Effects:**
-- returns `true` if there is an existing `Friendship` between `user1` and `user2`; otherwise, returns `false`.
-- Queries always return an array.
+- Returns `true` if there is an existing `Friendship` between `user1` and `user2`; otherwise, returns `false`.
 
 **Request Body:**
 ```json
 {
-  "user1": "string",
-  "user2": "string"
+  "user1": "ID",
+  "user2": "ID"
 }
 ```
 
@@ -751,22 +745,20 @@ return [{ senders }];
 }
 ```
 ---
-
 ### POST /api/Friends/_getFriends
 
-**Description:** Retrieves the set of all users with whom a given user has an active friendship.
+**Description:** Retrieves a list of all friends for a given user.
 
 **Requirements:**
 - true
 
 **Effects:**
-- returns the set of all users with whom `user` has an active `Friendship`.
-- Queries always return an array.
+- Returns the set of all users with whom `user` has an active `Friendship`.
 
 **Request Body:**
 ```json
 {
-  "user": "string"
+  "user": "ID"
 }
 ```
 
@@ -774,7 +766,9 @@ return [{ senders }];
 ```json
 [
   {
-    "friends": "string[]"
+    "friends": [
+      "ID"
+    ]
   }
 ]
 ```
@@ -786,22 +780,20 @@ return [{ senders }];
 }
 ```
 ---
-
 ### POST /api/Friends/_getSentRequests
 
-**Description:** Retrieves the set of all users to whom a given user has sent a friend request.
+**Description:** Retrieves all outgoing friend requests sent by a user.
 
 **Requirements:**
 - true
 
 **Effects:**
-- returns the set of all users to whom `user` has sent a `FriendRequest`.
-- Queries always return an array.
+- Returns the set of all users to whom `user` has sent a `FriendRequest`.
 
 **Request Body:**
 ```json
 {
-  "user": "string"
+  "user": "ID"
 }
 ```
 
@@ -809,7 +801,9 @@ return [{ senders }];
 ```json
 [
   {
-    "recipients": "string[]"
+    "recipients": [
+      "ID"
+    ]
   }
 ]
 ```
@@ -821,22 +815,20 @@ return [{ senders }];
 }
 ```
 ---
-
 ### POST /api/Friends/_getReceivedRequests
 
-**Description:** Retrieves the set of all users who have sent a friend request to a given user.
+**Description:** Retrieves all incoming friend requests received by a user.
 
 **Requirements:**
 - true
 
 **Effects:**
-- returns the set of all users who have sent a `FriendRequest` to `user`.
-- Queries always return an array.
+- Returns the set of all users who have sent a `FriendRequest` to `user`.
 
 **Request Body:**
 ```json
 {
-  "user": "string"
+  "user": "ID"
 }
 ```
 
@@ -844,7 +836,9 @@ return [{ senders }];
 ```json
 [
   {
-    "senders": "string[]"
+    "senders": [
+      "ID"
+    ]
   }
 ]
 ```

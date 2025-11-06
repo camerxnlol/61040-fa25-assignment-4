@@ -398,37 +398,41 @@ return songsToRecommend;
 
 /**
 
-* Implements the 'removeSong' action for the SongRecommender concept.
+* Implements the 'removeSongsFromCatalog' action for the SongRecommender concept.
 
-* This method removes a specified song from the user's
+* This method removes specified songs from the user's
 
 * `notYetRecommendedSongs` list.
 
 *
 
-* @param params Object containing userId and songId parameters.
+* @param params Object containing userId and songs parameters.
 
-* @param params.userId The ID of the user from whose catalog the song is to be removed.
+* @param params.userId The ID of the user from whose catalog the songs are to be removed.
 
-* @param params.songId The ID of the song to be removed.
+* @param params.songs Array of song IDs to be removed.
 
 * @returns A Promise that resolves when the operation is complete.
 
 * @throws Error if the user does not have an initialized song catalog, or if
 
-* the song is not found in the `notYetRecommendedSongs` list for the user.
+* any song is not found in the `notYetRecommendedSongs` list for the user.
 
 */
 
-async removeSong(params: { userId: User; songId: Song }): Promise<void> {
+async removeSongsFromCatalog(
 
-const { userId, songId } = params;
+params: { userId: User; songs: Song[] },
+
+): Promise<void> {
+
+const { userId, songs } = params;
 
 const collection = this.getUserCatalog();
 
   
 
-// Check the 'requires' clause: "song to be in notYetRecommendedSongs for user"
+// Check the 'requires' clause: "songs to be in notYetRecommendedSongs for user"
 
 const userCatalog = await collection.findOne(
 
@@ -440,19 +444,59 @@ const userCatalog = await collection.findOne(
 
   
 
-if (!userCatalog || !userCatalog.notYetRecommendedSongs?.includes(songId)) {
+if (!userCatalog) {
 
-throw new Error(
-
-`Song '${songId}' not found in not-yet-recommended songs for user '${userId}'.`,
-
-);
+throw new Error(`User '${userId}' not found or has no song catalog.`);
 
 }
 
   
 
-// Perform the 'effect': "removes song from notYetRecommendedSongs for user"
+// Check if any of the songs are not in the notYetRecommendedSongs list
+
+const missingSongs = songs.filter((songId) =>
+
+!userCatalog.notYetRecommendedSongs?.includes(songId)
+
+);
+
+  
+
+if (missingSongs.length > 0) {
+
+// If only one song is missing, use the singular form for consistency with existing tests
+
+if (missingSongs.length === 1) {
+
+throw new Error(
+
+`Song '${
+
+missingSongs[0]
+
+}' not found in not-yet-recommended songs for user '${userId}'.`,
+
+);
+
+} else {
+
+throw new Error(
+
+`Songs '${
+
+missingSongs.join(", ")
+
+}' not found in not-yet-recommended songs for user '${userId}'.`,
+
+);
+
+}
+
+}
+
+  
+
+// Perform the 'effect': "removes songs from notYetRecommendedSongs for user"
 
 const updateResult = await collection.updateOne(
 
@@ -460,7 +504,7 @@ const updateResult = await collection.updateOne(
 
 {
 
-$pull: { notYetRecommendedSongs: songId }, // Remove the specific song from the array
+$pullAll: { notYetRecommendedSongs: songs }, // Remove all specified songs from the array
 
 },
 
@@ -470,13 +514,147 @@ $pull: { notYetRecommendedSongs: songId }, // Remove the specific song from the 
 
 if (updateResult.modifiedCount === 0) {
 
-// This indicates that the song was not removed, possibly due to a race condition
+// This indicates that the songs were not removed, possibly due to a race condition
 
-// or the song no longer existing in the array.
+// or the songs no longer existing in the array.
 
 throw new Error(
 
-`Failed to remove song '${songId}' for user '${userId}'. Data might be stale.`,
+`Failed to remove songs for user '${userId}'. Data might be stale.`,
+
+);
+
+}
+
+}
+
+  
+
+/**
+
+* Implements the 'removeSongsFromPastRecommendations' action for the SongRecommender concept.
+
+* This method removes specified songs from the user's
+
+* `pastRecommendations` list.
+
+*
+
+* @param params Object containing userId and songs parameters.
+
+* @param params.userId The ID of the user from whose past recommendations the songs are to be removed.
+
+* @param params.songs Array of song IDs to be removed.
+
+* @returns A Promise that resolves when the operation is complete.
+
+* @throws Error if the user does not have an initialized song catalog, or if
+
+* any song is not found in the `pastRecommendations` list for the user.
+
+*/
+
+async removeSongsFromPastRecommendations(
+
+params: { userId: User; songs: Song[] },
+
+): Promise<void> {
+
+const { userId, songs } = params;
+
+const collection = this.getUserCatalog();
+
+  
+
+// Check the 'requires' clause: "songs to be in pastRecommendations for user"
+
+const userCatalog = await collection.findOne(
+
+{ _id: userId },
+
+{ projection: { pastRecommendations: 1 } },
+
+);
+
+  
+
+if (!userCatalog) {
+
+throw new Error(`User '${userId}' not found or has no song catalog.`);
+
+}
+
+  
+
+// Check if any of the songs are not in the pastRecommendations list
+
+const missingSongs = songs.filter((songId) =>
+
+!userCatalog.pastRecommendations?.includes(songId)
+
+);
+
+  
+
+if (missingSongs.length > 0) {
+
+// If only one song is missing, use the singular form for consistency with existing tests
+
+if (missingSongs.length === 1) {
+
+throw new Error(
+
+`Song '${
+
+missingSongs[0]
+
+}' not found in past recommendations for user '${userId}'.`,
+
+);
+
+} else {
+
+throw new Error(
+
+`Songs '${
+
+missingSongs.join(", ")
+
+}' not found in past recommendations for user '${userId}'.`,
+
+);
+
+}
+
+}
+
+  
+
+// Perform the 'effect': "removes songs from pastRecommendations for user"
+
+const updateResult = await collection.updateOne(
+
+{ _id: userId },
+
+{
+
+$pullAll: { pastRecommendations: songs }, // Remove all specified songs from the array
+
+},
+
+);
+
+  
+
+if (updateResult.modifiedCount === 0) {
+
+// This indicates that the songs were not removed, possibly due to a race condition
+
+// or the songs no longer existing in the array.
+
+throw new Error(
+
+`Failed to remove songs from past recommendations for user '${userId}'. Data might be stale.`,
 
 );
 
@@ -596,15 +774,12 @@ export default SongRecommenderConcept;
 ```
 
 
-# prompt: 
-
-Now, analyze the following Concept Implementation for SongRecommender and generate the API documentation based on these instructions.
-# response:
+# prompt:  Now, analyze the following Concept Implementation for SongRecommender and generate the API documentation based on these instructions.
 # response:
 
 # API Specification: SongRecommender Concept
 
-**Purpose:** Manages user song catalogs, allowing addition of songs, generation of recommendations, and removal of songs, to provide personalized music discovery.
+**Purpose:** To manage a catalog of songs for each user, track their listening history, and provide new song recommendations.
 
 ---
 
@@ -612,24 +787,21 @@ Now, analyze the following Concept Implementation for SongRecommender and genera
 
 ### POST /api/SongRecommender/addSongToCatalog
 
-**Description:** Adds new songs to a user's list of songs available for future recommendations, ensuring no duplicates exist.
+**Description:** Adds one or more new songs to a user's catalog of songs available for future recommendations.
 
 **Requirements:**
-- The `userId` must refer to an existing or new user.
-- Each `song` in the input list must not already be in `pastRecommendations` for the user.
-- Each `song` in the input list must not already be in `notYetRecommendedSongs` for the user.
+- The songs to be added must not already be in the user's `pastRecommendations` list.
+- The songs to be added must not already be in the user's `notYetRecommendedSongs` list.
 
 **Effects:**
-- If the user's catalog does not exist, it is created with an empty `pastRecommendations` list.
-- Adds all provided `songs` to the user's `notYetRecommendedSongs` list, ensuring uniqueness.
+- Adds the specified songs to the user's `notYetRecommendedSongs` array.
+- If the user does not have a catalog, a new one is created for them.
 
 **Request Body:**
 ```json
 {
-  "userId": "string",
-  "songs": [
-    "string"
-  ]
+  "userId": "ID",
+  "songs": ["ID"]
 }
 ```
 
@@ -641,67 +813,61 @@ Now, analyze the following Concept Implementation for SongRecommender and genera
 **Error Response Body:**
 ```json
 {
-  "error": "string"
+  "error": "Song '...' is already pending recommendation for user '...'."
 }
 ```
-
 ---
-
 ### POST /api/SongRecommender/generateRecommendation
 
-**Description:** Selects a specified number of songs from the user's `notYetRecommendedSongs`, moves them to `pastRecommendations`, and returns them as recommendations.
+**Description:** Selects a specified number of songs from the user's available songs, moves them to their history, and returns them as recommendations.
 
 **Requirements:**
-- `count` must be a positive number.
-- The `userId` must refer to an existing user with an initialized song catalog.
-- The number of `notYetRecommendedSongs` for the user must be greater than or equal to `count`.
+- The `count` must be a positive number.
+- The `count` must be less than or equal to the number of songs in the user's `notYetRecommendedSongs` list.
+- The user must have a song catalog.
 
 **Effects:**
-- `count` songs are removed from the user's `notYetRecommendedSongs` list.
-- The same `count` songs are added to the user's `pastRecommendations` list.
-- Returns the `count` song recommendations.
+- Moves `count` songs from the user's `notYetRecommendedSongs` list to their `pastRecommendations` list.
+- Returns the `count` songs that were moved.
 
 **Request Body:**
 ```json
 {
-  "userId": "string",
+  "userId": "ID",
   "count": "number"
 }
 ```
 
 **Success Response Body (Action):**
 ```json
-[
-  "string"
-]
+{
+  "recommendations": ["ID"]
+}
 ```
-*(Note: Returns an array of song IDs directly, e.g., `["songId1", "songId2"]`)*
 
 **Error Response Body:**
 ```json
 {
-  "error": "string"
+  "error": "Not enough songs available for user '...'. Requested ..., but only ... are available."
 }
 ```
-
 ---
+### POST /api/SongRecommender/removeSongsFromCatalog
 
-### POST /api/SongRecommender/removeSong
-
-**Description:** Removes a specified song from the user's `notYetRecommendedSongs` list.
+**Description:** Removes specified songs from a user's list of songs available for recommendation.
 
 **Requirements:**
-- The `userId` must refer to an existing user with an initialized song catalog.
-- The `songId` must be present in the user's `notYetRecommendedSongs` list.
+- The user must have a song catalog.
+- All specified songs must exist in the user's `notYetRecommendedSongs` list.
 
 **Effects:**
-- The specified `songId` is removed from the user's `notYetRecommendedSongs` list.
+- Removes the specified songs from the user's `notYetRecommendedSongs` list.
 
 **Request Body:**
 ```json
 {
-  "userId": "string",
-  "songId": "string"
+  "userId": "ID",
+  "songs": ["ID"]
 }
 ```
 
@@ -713,74 +879,100 @@ Now, analyze the following Concept Implementation for SongRecommender and genera
 **Error Response Body:**
 ```json
 {
-  "error": "string"
+  "error": "Song '...' not found in not-yet-recommended songs for user '...'."
+}
+```
+---
+### POST /api/SongRecommender/removeSongsFromPastRecommendations
+
+**Description:** Removes specified songs from a user's list of past recommendations.
+
+**Requirements:**
+- The user must have a song catalog.
+- All specified songs must exist in the user's `pastRecommendations` list.
+
+**Effects:**
+- Removes the specified songs from the user's `pastRecommendations` list.
+
+**Request Body:**
+```json
+{
+  "userId": "ID",
+  "songs": ["ID"]
 }
 ```
 
----
+**Success Response Body (Action):**
+```json
+{}
+```
 
+**Error Response Body:**
+```json
+{
+  "error": "Song '...' not found in past recommendations for user '...'."
+}
+```
+---
 ### POST /api/SongRecommender/getPastRecommendations
 
-**Description:** Retrieves the list of songs that have previously been recommended to a user.
+**Description:** Retrieves the list of songs that have been previously recommended to a user.
 
 **Requirements:**
-- The `userId` must refer to an existing user with an initialized song catalog.
+- The user must have a song catalog.
 
 **Effects:**
-- Returns an array of song IDs that were previously recommended to the user.
+- Returns the user's `pastRecommendations` array.
 
 **Request Body:**
 ```json
 {
-  "userId": "string"
+  "userId": "ID"
 }
 ```
 
-**Success Response Body (Query):**
+**Success Response Body (Action):**
 ```json
-[
-  "string"
-]
+{
+  "pastRecommendations": ["ID"]
+}
 ```
-*(Note: Returns an array of song IDs directly, e.g., `["songId1", "songId2"]`)*
 
 **Error Response Body:**
 ```json
 {
-  "error": "string"
+  "error": "User '...' not found or has no song catalog."
 }
 ```
-
 ---
-
 ### POST /api/SongRecommender/getNotYetRecommended
 
-**Description:** Retrieves the list of songs available for a user that have not yet been recommended.
+**Description:** Retrieves the list of songs available to be recommended to a user.
 
 **Requirements:**
-- The `userId` must refer to an existing user with an initialized song catalog.
+- The user must have a song catalog.
 
 **Effects:**
-- Returns an array of song IDs that are available for future recommendation to the user.
+- Returns the user's `notYetRecommendedSongs` array.
 
 **Request Body:**
 ```json
 {
-  "userId": "string"
+  "userId": "ID"
 }
 ```
 
-**Success Response Body (Query):**
+**Success Response Body (Action):**
 ```json
-[
-  "string"
-]
+{
+  "notYetRecommendedSongs": ["ID"]
+}
 ```
-*(Note: Returns an array of song IDs directly, e.g., `["songId1", "songId2"]`)*
 
 **Error Response Body:**
 ```json
 {
-  "error": "string"
+  "error": "User '...' not found or has no song catalog."
 }
 ```
+---

@@ -364,9 +364,7 @@ return reactions.map((r) => ({ reactions: r }));
 ```
 
 
-# prompt: 
-
-Now, analyze the following Concept Implementation for Reaction and generate the API documentation based on these instructions.
+# prompt: Now, analyze the following Concept Implementation for Reaction and generate the API documentation based on these instructions.
 # response:
 
 # API Specification: Reaction Concept
@@ -379,16 +377,14 @@ Now, analyze the following Concept Implementation for Reaction and generate the 
 
 ### POST /api/Reaction/add
 
-**Description:** Adds a new emoji reaction by a user to a specific post.
+**Description:** Adds an emoji reaction from a user to a post.
 
 **Requirements:**
-- reactionType IS_VALID_EMOJI (Note: In the current implementation, any string is treated as a valid EmojiString.)
-- User cannot add the exact same emoji reaction to the same post twice.
+- The user has not already added the exact same emoji reaction to the same post.
 
 **Effects:**
-- create new_reaction with id = UUID(), post = post, reactionType = reactionType, reactingUser = reactingUser
-- add new_reaction to Reaction
-- returns new_reaction.id as 'reactionId'
+- A new reaction entity is created with a unique ID, associated with the given post, user, and emoji type.
+- Returns the unique ID of the newly created reaction.
 
 **Request Body:**
 ```json
@@ -413,16 +409,15 @@ Now, analyze the following Concept Implementation for Reaction and generate the 
 }
 ```
 ---
-
 ### POST /api/Reaction/remove
 
-**Description:** Removes a specific emoji reaction by a user from a post.
+**Description:** Removes a specific emoji reaction that a user previously added to a post.
 
 **Requirements:**
-- EXISTS r IN Reaction SUCH THAT r.post == post AND r.reactingUser == reactingUser AND r.reactionType == reactionType
+- A reaction from the specified user with the specified emoji must exist on the post.
 
 **Effects:**
-- delete r from Reaction WHERE r.post == post AND r.reactingUser == reactingUser AND r.reactionType == reactionType
+- The matching reaction is deleted.
 
 **Request Body:**
 ```json
@@ -445,16 +440,15 @@ Now, analyze the following Concept Implementation for Reaction and generate the 
 }
 ```
 ---
-
 ### POST /api/Reaction/_getReactionsForPost
 
-**Description:** Retrieves all reactions associated with a specific post.
+**Description:** Retrieves all reactions for a specific post.
 
 **Requirements:**
-- true
+- None. This query can always be performed.
 
 **Effects:**
-- returns the set of all Reaction entities where reaction.post == post
+- Returns the set of all reaction entities associated with the specified post.
 
 **Request Body:**
 ```json
@@ -484,16 +478,15 @@ Now, analyze the following Concept Implementation for Reaction and generate the 
 }
 ```
 ---
-
 ### POST /api/Reaction/_getReactionsByPostAndUser
 
-**Description:** Retrieves all reactions for a specific post by a specific user.
+**Description:** Retrieves all reactions made by a specific user on a specific post.
 
 **Requirements:**
-- true
+- None. This query can always be performed.
 
 **Effects:**
-- returns the set of all Reaction entities where reaction.post == post AND reaction.reactingUser == reactingUser
+- Returns the set of all reaction entities associated with the specified post and user.
 
 **Request Body:**
 ```json
@@ -523,3 +516,4 @@ Now, analyze the following Concept Implementation for Reaction and generate the 
   "error": "string"
 }
 ```
+---

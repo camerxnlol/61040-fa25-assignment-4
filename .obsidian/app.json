@@ -1,9 +1,3 @@
 {
-  "useMarkdownLinks": true,
-  "newLinkFormat": "relative",
-<<<<<<< HEAD
   "alwaysUpdateLinks": true
-=======
-  "showUnsupportedFiles": true
->>>>>>> upstream/main
 }
