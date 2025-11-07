@@ -185,6 +185,14 @@
   },
   "active": "63597903454851f9",
   "lastOpenFiles": [
+    "4b-updates.md",
+    "4b-updates",
+    "reflection.md",
+    "assets/Screenshot 2025-11-07 at 5.38.33 PM.png",
+    "assets/Screenshot 2025-11-07 at 5.37.11 PM.png",
+    "assets",
+    "Screenshot 2025-11-07 at 5.37.11 PM.png",
+    "final_design_doc.md",
     "context/design/concepts/debugging-syncs.md/20251107_005749.93cd3450.md",
     "context/design/concepts/debugging-syncs.md/steps/response.36906011.md",
     "context/design/concepts/debugging-syncs.md/20251107_005645.6bfcadab.md",
@@ -208,9 +216,6 @@
     "context/design/concepts/debugging-syncs.md/steps/file.f2763fa4.md",
     "context/design/concepts/debugging-syncs.md/steps/_.5da05fda.md",
     "context/design/concepts/debugging-syncs.md/steps/_.ee4d1e5e.md",
-    "context/design/concepts/debugging-syncs.md/steps/_.534e93ad.md",
-    "context/design/concepts/debugging-syncs.md/steps/Generic Parameters.087161ea.md",
-    "context/design/concepts/debugging-syncs.md/steps/approach.2aeb0530.md",
     "context/design/concepts/Ranking/concept-understanding.md/steps",
     "src/utils/metadataCache.ts",
     "src/utils/cache.ts",
@@ -218,8 +223,6 @@
     "src/syncs/userauthentication.sync.ts",
     "src/syncs/songrecommender.sync.ts",
     "src/syncs/reaction.sync.ts",
-    "src/syncs/ranking.sync.ts",
-    "src/syncs/posts.sync.ts",
-    "src/syncs/post.sync.ts"
+    "src/syncs/ranking.sync.ts"
   ]
 }

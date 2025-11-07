@@ -1,44 +1,55 @@
-# 6.104 Assignment 4: Implementing Concepts
+<!-- High-level docs -->
 
-## Updates Since Assignment 4
-1. Friends concept added. When finishing my app for the check in, I doubled back on my decision of not having a friends concept. When I think about how this app will be used, I want some sort of friends concepts where friends in real life can become friends on the app and discuss their rankings with each other. This is just not possible through just a feed, where it would often be polluted with random rankings from other people. With a friends concept, the users gain the power to limit who sees their posts and gain easy access to what their friends post.
-2. Endpoints for adding and deleting from the SongRecommender concept have been turned into lists. I found that I wanted to add a bunch of songs to a user's catalog at once, and with the old spec I had to make a POST request for each individual song. By making the endpoint accept a list of songs, this makes it easier for the maintainer to keep up requests. Additionally, when I tried to generate more than one recommendation, I would have needed to parse and split the output. Now that it's a list, I can simply iterate over it to see what songs have been recommended.
+# Meli
+Docs for Assignment 4c:
 
-## Concept 1: SongRecommender
-[Concept Spec](src/concepts/SongRecommender/spec.md)
-[Implementation](src/concepts/SongRecommender/SongRecommenderConcept.ts)
-[Testing](src/concepts/SongRecommender/SongRecommenderConcept.test.ts)
-[Test Output](src/concepts/SongRecommender/test_output.md)
-[Design Changes](src/concepts/SongRecommender/design_changes.md)
-## Concept 2: UserAuthentication
-[Concept Spec](src/concepts/UserAuthentication/spec.md)
-[Implementation](src/concepts/UserAuthentication/UserAuthenticationConcept.ts)
-[Testing](src/concepts/UserAuthentication/UserAuthenticationConcept.test.ts)
-[Test Output](src/concepts/UserAuthentication/test_output.md)
-[Design Changes](src/concepts/UserAuthentication/design_changes.md)
-## Concept 3: Post
-[Concept Spec](src/concepts/Post/spec.md)
-[Implementation](src/concepts/Post/PostConcept.ts)
-[Testing](src/concepts/Post/PostConcept.test.ts)
-[Test Output](src/concepts/Post/test_output.md)
-[Design Changes](src/concepts/Post/design_changes.md)
-## Concept 4: Ranking
-[Concept Spec](src/concepts/Ranking/spec.md)
-[Implementation](src/concepts/Ranking/RankingConcept.ts)
-[Testing](src/concepts/Ranking/RankingConcept.test.ts)
-[Test Output](src/concepts/Ranking/test_output.md)
-[Design Changes](src/concepts/Ranking/design_changes.md)
-## Concept 5: Reaction
-[Concept Spec](src/concepts/Reaction/spec.md)
-[Implementation](src/concepts/Reaction/ReactionConcept.ts)
-[Testing](src/concepts/Reaction/ReactionConcept.test.ts)
-[Test Output](src/concepts/Reaction/test_output.md)
-[Design Changes](src/concepts/Reaction/design_changes.md)
-## Concept 6: Friends
-[Concept Spec](src/concepts/Friends/spec.md)
-[Implementation](src/concepts/Friends/FriendsConcept.ts)
-[Testing](src/concepts/Friends/FreindsConcept.test.ts)
+[Final Design Document](final_design_doc.md) · [Project Reflection](reflection.md) · [Updates Since Assignment 4 (for assignment 4b)](4b-updates.md)
 
+## Testing the app (IMPORTANT)
+To test the app please login with username: `testuer` and pasword: `testuser`. This account has recommendations, friends, posts, and reactions setup for it. To test logging in and registering, feel free to make a new account. To use/test the deployed app, visit [https://meli-0pbd.onrender.com/](https://meli-0pbd.onrender.com/)
 
-## Interesting Moments + Overall Design Changes
+## Overview
+
+Meli is a music recommendation and ranking platform that helps people grow their taste and form clear opinions about the songs they listen to. The system is built with concept design: independent, reusable modules called concepts, composed by simple synchronizations that define how they interact.
+
+- Concepts: defined by clear purposes like authenticating a user or generating song recommendations. See the overview in `design/background/concept-design-overview.md`.
+- Synchronizations: declarative rules that connect concepts. See `design/background/implementing-synchronizations.md`.
+- Architecture details: `design/background/architecture.md`
+
+The repository is divided between:
+- `src/`: TypeScript source and configuration
+- `design/`: design documents used as documentation and prompts
+- `context/`: immutable history mirroring the repository for reproducibility
+
+### API overview
+Endpoints are created by synchronizations against the Requesting concept. All endpoints are organized by concept and exposed under a concept-specific prefix:
+
+- `/SongRecommender/*`
+- `/UserAuthentication/*`
+- `/Post/*`
+- `/Ranking/*`
+- `/Reaction/*`
+- `/Friends/*`
+
+See `src/concepts/Requesting/README.md` to understand how requests and responses flow through the system.
+
+### Concepts
+Below are quick links to each concept’s spec, implementation, and tests.
+
+| Concept | Spec | Implementation | Tests | Test Output | Design Changes (from assignment 4) |
+| --- | --- | --- | --- | --- | --- |
+| SongRecommender | [Spec](src/concepts/SongRecommender/spec.md) | [Implementation](src/concepts/SongRecommender/SongRecommenderConcept.ts) | [Tests](src/concepts/SongRecommender/SongRecommenderConcept.test.ts) | [Output](src/concepts/SongRecommender/test_output.md) | [Changes](src/concepts/SongRecommender/design_changes.md) |
+| UserAuthentication | [Spec](src/concepts/UserAuthentication/spec.md) | [Implementation](src/concepts/UserAuthentication/UserAuthenticationConcept.ts) | [Tests](src/concepts/UserAuthentication/UserAuthenticationConcept.test.ts) | [Output](src/concepts/UserAuthentication/test_output.md) | [Changes](src/concepts/UserAuthentication/design_changes.md) |
+| Post | [Spec](src/concepts/Post/spec.md) | [Implementation](src/concepts/Post/PostConcept.ts) | [Tests](src/concepts/Post/PostConcept.test.ts) | [Output](src/concepts/Post/test_output.md) | [Changes](src/concepts/Post/design_changes.md) |
+| Ranking | [Spec](src/concepts/Ranking/spec.md) | [Implementation](src/concepts/Ranking/RankingConcept.ts) | [Tests](src/concepts/Ranking/RankingConcept.test.ts) | [Output](src/concepts/Ranking/test_output.md) | [Changes](src/concepts/Ranking/design_changes.md) |
+| Reaction | [Spec](src/concepts/Reaction/spec.md) | [Implementation](src/concepts/Reaction/ReactionConcept.ts) | [Tests](src/concepts/Reaction/ReactionConcept.test.ts) | [Output](src/concepts/Reaction/test_output.md) | [Changes](src/concepts/Reaction/design_changes.md) |
+| Friends | [Spec](src/concepts/Friends/spec.md) | [Implementation](src/concepts/Friends/FriendsConcept.ts) | [Tests](src/concepts/Friends/FreindsConcept.test.ts) | N/A | N/A |
+
+### Exploring the code
+- Understanding concepts: `design/background/concept-design-overview.md`
+- Understanding synchronizations: `design/background/implementing-synchronizations.md`
+- Entrypoint for requests: `src/concepts/Requesting/README.md`
+- Overall architecture: `design/background/architecture.md`
+
+## Interesting moments and overall design changes (from assignment 4)
 [summary](summary.md)
