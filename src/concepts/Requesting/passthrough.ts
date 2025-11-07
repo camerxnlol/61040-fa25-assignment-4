@@ -56,7 +56,7 @@ export const exclusions: Array<string> = [
   "/api/Reaction/_getReactionsByPostAndUser",
   "/api/Ranking/addComparison",
   "/api/Ranking/remove",
-  "/api/Ranking/_getRankings",
+  "/api/Ranking/_getRankingsByAuthor",
   "/api/Post/create",
   "/api/Post/delete",
   "/api/Post/_getPostsByAuthor",

@@ -1,7 +1,7 @@
 // file: src/syncs/friends.sync.ts
 
 import { Friends, Requesting, Sessioning } from "@concepts";
-import { actions, Frames, Sync } from "@engine";
+import { actions, Sync } from "@engine";
 import { ID } from "@utils/types.ts";
 
 // --- ACTIONS (Create, Update, Delete) ---

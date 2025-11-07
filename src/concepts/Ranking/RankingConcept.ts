@@ -201,26 +201,22 @@ export default class RankingConcept {
   }
 
   /**
-   * _getRankings (user: User) : {rankedSongs: RankedSong[]} | {error: string}
+   * _getRankingsByAuthor (authorId: ID): { rankedSongs: RankedSong[] } | { error: string }
    *
-   * **requires** user exists in the concept state (has a ranking)
-   *
-   * **effects** returns the current `RankedSong` entries for the `user`, ordered by `score` (descending).
+   * **requires** authorId exists in the concept state (has a ranking)
+   * **effects** returns the current `RankedSong` entries for the `authorId`, ordered by `score` (descending).
    */
-  async _getRankings(
-    { user }: { user: User },
-  ): Promise<{ rankedSongs: RankedSong[] } | { error: string }> {
-    const userRanking = await this.userRankings.findOne({ _id: user });
+  async _getRankingsByAuthor({ authorId }: { authorId: ID }): Promise<{ rankedSongs: RankedSong[] } | { error: string }> {
+    const userRanking = await this.userRankings.findOne({ _id: authorId });
 
     if (!userRanking) {
-      return { error: "User ranking not found for the given user." };
+      // It's common for a query on a non-existent item to return an empty result rather than an error.
+      return { rankedSongs: [] };
     }
 
-    // Return the current RankedSong entries for the user, ordered by score (descending)
-    const sortedRankedSongs = [...userRanking.rankedSongs].sort(
-      (a, b) => b.score - a.score,
-    );
+    // Sort by score descending before returning
+    const sortedSongs = userRanking.rankedSongs.sort((a, b) => b.score - a.score);
 
-    return { rankedSongs: sortedRankedSongs };
+    return { rankedSongs: sortedSongs };
   }
 }

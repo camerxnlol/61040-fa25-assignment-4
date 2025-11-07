@@ -137,7 +137,7 @@ export class SongRecommenderConcept {
    */
   async generateRecommendation(
     params: { userId: User; count: number },
-  ): Promise<Song[]> {
+  ): Promise<{ recommendations: Song[] }> {
     const { userId, count } = params;
     const collection = this.getUserCatalog();
 
@@ -192,7 +192,7 @@ export class SongRecommenderConcept {
     }
 
     // Return the selected song IDs as per the 'effect' clause: "returns count song recommendations"
-    return songsToRecommend;
+    return { recommendations: songsToRecommend };
   }
 
   /**
@@ -337,20 +337,15 @@ export class SongRecommenderConcept {
    * @returns A Promise that resolves with an array of past recommended Song IDs.
    * @throws Error if the user does not have an initialized song catalog.
    */
-  async getPastRecommendations(params: { userId: User }): Promise<Song[]> {
-    const { userId } = params;
-    const collection = this.getUserCatalog();
+  async getPastRecommendations({ userId }: { userId: ID }): Promise<{ pastRecommendations: ID[] } | { error: string }> {
+    const catalog = await this.getUserCatalog().findOne({ _id: userId });
 
-    const userCatalog = await collection.findOne(
-      { _id: userId },
-      { projection: { pastRecommendations: 1 } },
-    );
-
-    if (!userCatalog) {
-      throw new Error(`User '${userId}' not found or has no song catalog.`);
+    if (!catalog) {
+      return { error: `User '${userId}' not found or has no song catalog.` };
     }
 
-    return userCatalog.pastRecommendations || [];
+    // CORRECTED: Wrap the array in an object to match the sync's pattern.
+    return { pastRecommendations: catalog.pastRecommendations || [] };
   }
 
   /**
@@ -361,20 +356,14 @@ export class SongRecommenderConcept {
    * @returns A Promise that resolves with an array of not-yet-recommended Song IDs.
    * @throws Error if the user does not have an initialized song catalog.
    */
-  async getNotYetRecommended(params: { userId: User }): Promise<Song[]> {
-    const { userId } = params;
-    const collection = this.getUserCatalog();
+  async getNotYetRecommended({ userId }: { userId: ID }): Promise<{ notYetRecommendedSongs: ID[] } | { error: string }> {
+    const catalog = await this.getUserCatalog().findOne({ _id: userId });
 
-    const userCatalog = await collection.findOne(
-      { _id: userId },
-      { projection: { notYetRecommendedSongs: 1 } },
-    );
-
-    if (!userCatalog) {
-      throw new Error(`User '${userId}' not found or has no song catalog.`);
+    if (!catalog) {
+      return { error: `User '${userId}' not found or has no song catalog.` };
     }
 
-    return userCatalog.notYetRecommendedSongs || [];
+    return { notYetRecommendedSongs: catalog.notYetRecommendedSongs || [] };
   }
 }
 
