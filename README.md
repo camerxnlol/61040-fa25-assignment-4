@@ -1,9 +1,9 @@
 <!-- High-level docs -->
 
 # Meli
-Docs for Assignment 4c:
+## Docs for Assignment 4c:
 
-[Final Design Document](final_design_doc.md) · [Project Reflection](reflection.md) · [Updates Since Assignment 4 (for assignment 4b)](4b-updates.md)
+[Final Design Document](final_design_doc.md) · [Project Reflection](reflection.md) · [Final User Journey](https://youtu.be/L6NHUT_zPak) · [Logs for User Journey](logs.txt) · [Updates Since Assignment 4 (for assignment 4b)](4b-updates.md)
 
 ## Testing the app (IMPORTANT)
 To test the app please login with username: `testuer` and pasword: `testuser`. This account has recommendations, friends, posts, and reactions setup for it. To test logging in and registering, feel free to make a new account. To use/test the deployed app, visit [https://meli-0pbd.onrender.com/](https://meli-0pbd.onrender.com/)
